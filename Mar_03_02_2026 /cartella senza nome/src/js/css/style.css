@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-gold: 197, 160, 134; /* Rame Veneziano in RGB */
+  }
+
+  html {
+    /* Ottimizzazione per lo smooth scroll di Lenis */
+    scroll-behavior: auto !important;
+  }
+
+  body {
+    @apply bg-aeterna-black text-aeterna-titanium font-sans antialiased;
+    /* Grana cinematografica di sottofondo */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-attachment: fixed;
+    opacity: 0.98;
+  }
+
+  /* Custom Scrollbar minimalista */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-aeterna-black;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-aeterna-gold/30 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-aeterna-gold;
+  }
+}
+
+@layer components {
+  /* Effetto Vetro Zaffiro (Glassmorphism) */
+  .sapphire-glass {
+    @apply backdrop-blur-md bg-white/5 border border-white/10;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  /* Typography Enhancements */
+  .text-luxury-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-b from-aeterna-titanium to-aeterna-gold-light;
+  }
+
+  /* Bottoni con animazione a "riempimento" */
+  .btn-aeterna {
+    @apply relative overflow-hidden px-8 py-4 border border-aeterna-gold text-aeterna-gold uppercase tracking-[0.3em] text-[10px] transition-all duration-700 ease-out;
+  }
+
+  .btn-aeterna::before {
+    content: '';
+    @apply absolute top-0 left-[-100%] w-full h-full bg-aeterna-gold transition-all duration-700 ease-out -z-10;
+  }
+
+  .btn-aeterna:hover {
+    @apply text-aeterna-black;
+  }
+
+  .btn-aeterna:hover::before {
+    @apply left-0;
+  }
+}
+
+@layer utilities {
+  /* Animazione di bagliore per i sensori smart */
+  .glow-pulse-smart {
+    box-shadow: 0 0 15px rgba(69, 162, 158, 0.3);
+    animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 25px rgba(69, 162, 158, 0.6); }
+    100% { transform: scale(0.95); opacity: 0.5; }
+  }
+
+  /* Effetto parallasse per immagini */
+  .parallax-image {
+    will-change: transform;
+    transition: transform 0.1s linear;
+  }
+}
+
+/* Fix per Mix Blend Mode dell'header su sfondi complessi */
+header {
+  backdrop-filter: none; /* Evita conflitti con mix-blend-mode */
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="it" class="bg-aeterna-black text-aeterna-titanium selection:bg-aeterna-gold selection:text-aeterna-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETERNA | L'Evoluzione del Tempo Italiano</title>
+    <meta name="description" content="Aeterna: Orologi smart di alta gamma, eccellenza del Made in Italy. L'innovazione tecnologica incontra l'eleganza eterna.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./src/css/style.css">
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <div id="custom-cursor" class="fixed w-4 h-4 bg-aeterna-gold rounded-full pointer-events-none z-[9999] mix-blend-difference hidden md:block"></div>
+
+    <header class="fixed top-0 w-full z-50 px-6 py-8 flex justify-between items-center mix-blend-difference">
+        <div class="text-2xl font-serif font-bold tracking-widest uppercase">
+            Aeterna
+        </div>
+        <nav class="hidden md:flex gap-12 text-xs uppercase tracking-[0.2em] font-sans">
+            <a href="#heritage" class="hover:text-aeterna-gold transition-colors">Heritage</a>
+            <a href="#innovation" class="hover:text-aeterna-gold transition-colors">Innovazione</a>
+            <a href="#collection" class="hover:text-aeterna-gold transition-colors">Collezione</a>
+        </nav>
+        <button class="border-b border-aeterna-gold pb-1 text-xs uppercase tracking-widest hover:text-aeterna-gold transition-all">
+            Prenota il tuo
+        </button>
+    </header>
+
+    <main>
+        <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+            <div class="z-10 text-center px-4">
+                <h1 class="text-6xl md:text-9xl font-serif italic mb-6 opacity-0 translate-y-10" id="hero-title">
+                    Oltre la Meccanica.
+                </h1>
+                <p class="text-sm md:text-lg font-sans tracking-[0.3em] uppercase opacity-0" id="hero-subtitle">
+                    L'intelligenza del futuro, nel cuore di Roma.
+                </p>
+            </div>
+            <div class="absolute inset-0 z-0 bg-gradient-to-b from-transparent to-aeterna-black">
+                <div class="w-full h-full bg-[url('https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-40"></div>
+            </div>
+            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+                <div class="w-[1px] h-12 bg-aeterna-gold"></div>
+            </div>
+        </section>
+
+        <section id="heritage" class="min-h-screen py-32 px-6 md:px-24 flex flex-col md:flex-row items-center gap-16 bg-aeterna-black">
+            <div class="w-full md:w-1/2">
+                <h2 class="text-aeterna-gold font-serif text-4xl md:text-6xl mb-8">L'Eternità ha un <br>nuovo battito.</h2>
+                <p class="font-sans text-aeterna-titanium/70 leading-relaxed max-w-md mb-8">
+                    Rolex ha definito il secolo scorso. Aeterna definisce il prossimo. 
+                    Ogni componente è fresato dal pieno in titanio grado 5 nei nostri laboratori di Milano, 
+                    fondendo la maestria artigianale italiana con un'intelligenza artificiale predittiva.
+                </p>
+                <div class="w-24 h-[1px] bg-aeterna-gold"></div>
+            </div>
+            <div class="w-full md:w-1/2 h-[600px] bg-aeterna-slate relative overflow-hidden group">
+                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80" alt="Dettaglio artigianale" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000">
+            </div>
+        </section>
+
+        <section id="innovation" class="h-screen bg-aeterna-black flex flex-col items-center justify-center relative border-y border-aeterna-slate">
+            <div class="absolute top-20 text-center z-10">
+                <span class="text-aeterna-pulse font-sans text-xs tracking-widest uppercase">Tecnologia Sensoriale</span>
+                <h2 class="text-4xl font-serif mt-2">Core V1: Il Motore Intelligente</h2>
+            </div>
+            
+            <div id="canvas-container" class="w-full h-full cursor-grab active:cursor-grabbing">
+                <div class="flex items-center justify-center h-full text-aeterna-slate italic">
+                    [ Interazione 3D : Caricamento Motore Aeterna... ]
+                </div>
+            </div>
+
+            <div class="absolute bottom-20 right-10 md:right-20 p-6 backdrop-blur-md bg-white/5 border border-white/10 rounded-sm max-w-xs animate-glow-pulse">
+                <h4 class="text-aeterna-gold font-sans text-xs font-bold uppercase mb-2">Monitoraggio Biometrico</h4>
+                <p class="text-xs text-aeterna-titanium/60">Sensori al cristallo di zaffiro con precisione medica del 99.9%.</p>
+            </div>
+        </section>
+
+        <section class="py-32 text-center bg-aeterna-black">
+            <h3 class="text-5xl md:text-7xl font-serif italic mb-12">Il tempo non aspetta.</h3>
+            <button class="px-12 py-4 border border-aeterna-gold text-aeterna-gold uppercase tracking-[0.4em] text-xs hover:bg-aeterna-gold hover:text-aeterna-black transition-all duration-500">
+                Unisciti alla Lista d'Attesa
+            </button>
+        </section>
+    </main>
+
+    <footer class="bg-aeterna-slate py-12 px-6 border-t border-white/5 text-[10px] uppercase tracking-widest text-aeterna-titanium/40 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div>© 2026 AETERNA S.p.A. - Made in Italy</div>
+        <div class="flex gap-8">
+            <a href="#" class="hover:text-aeterna-gold transition-colors">Privacy</a>
+            <a href="#" class="hover:text-aeterna-gold transition-colors">Termini</a>
+            <a href="#" class="hover:text-aeterna-gold transition-colors">Press Kit</a>
+        </div>
+        <div class="font-serif italic text-lg text-aeterna-gold">Aeterna</div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="./src/js/main.js"></script>
+</body>
+</html>

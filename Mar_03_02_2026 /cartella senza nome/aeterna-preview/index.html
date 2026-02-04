@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETERNA | Italian High-Tech Horology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Inter:wght@200;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aeterna: { black: '#0B0C10', gold: '#C5A086', titanium: '#F4F6F7', slate: '#1F2833' }
+                    },
+                    fontFamily: { serif: ['Cormorant Garamond', 'serif'], sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-aeterna-black text-aeterna-titanium selection:bg-aeterna-gold selection:text-black">
+
+    <div class="fixed inset-0 pointer-events-none z-[9999] opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+
+    <nav class="fixed top-0 w-full z-[100] px-10 py-8 flex justify-between items-center mix-blend-difference">
+        <div class="font-serif text-2xl tracking-[0.3em] uppercase text-aeterna-titanium">Aeterna</div>
+        <div class="hidden md:flex space-x-12 text-[10px] uppercase tracking-[0.4em] font-light text-aeterna-titanium">
+            <a href="#philosophy" class="hover:text-aeterna-gold transition-colors">Philosophy</a>
+            <a href="#craft" class="hover:text-aeterna-gold transition-colors">Craftsmanship</a>
+            <a href="#collection" class="hover:text-aeterna-gold transition-colors">Collection</a>
+        </div>
+        <button class="bg-aeterna-gold text-black text-[10px] px-8 py-3 uppercase tracking-widest font-bold hover:bg-white transition-all">Pre-Order</button>
+    </nav>
+
+    <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="z-20 text-center space-y-4 px-6">
+            <h2 id="hero-sub" class="text-aeterna-gold uppercase tracking-[0.5em] text-xs md:text-sm opacity-0">Il futuro ha radici antiche</h2>
+            <h1 id="hero-main" class="text-7xl md:text-[10rem] font-serif italic leading-none text-aeterna-titanium opacity-0">Aeterna.</h1>
+        </div>
+        <div class="absolute inset-0 z-0">
+            <img id="hero-bg" src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?q=80&w=2000" class="w-full h-full object-cover opacity-40 scale-110" alt="Luxury Watch Detail">
+            <div class="absolute inset-0 bg-gradient-to-t from-aeterna-black via-transparent to-transparent"></div>
+        </div>
+    </section>
+
+    <section id="philosophy" class="py-40 px-6 md:px-20 grid md:grid-cols-2 gap-20 items-center">
+        <div class="reveal reveal-left">
+            <h3 class="font-serif text-5xl md:text-7xl mb-8 italic text-aeterna-gold">Oltre l'eredità, <br>verso l'infinito.</h3>
+            <p class="text-aeterna-titanium/70 font-light text-lg leading-relaxed max-w-lg">
+                Mentre altri celebrano il passato, noi progettiamo l'eterno. Aeterna fonde la precisione millimetrica del titanio italiano con un'intelligenza neurale che evolve con te.
+            </p>
+        </div>
+        <div class="relative overflow-hidden h-[600px] reveal reveal-right shadow-2xl border border-white/5">
+            <img src="https://hips.hearstapps.com/hmg-prod/images/huawei-watch-gt5-pro-ceramic-66fe4d986bf8d.jpg" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" alt="Tech Excellence">
+        </div>
+    </section>
+
+    <section id="craft" class="py-20 bg-aeterna-slate/20">
+        <div class="container mx-auto px-6">
+            <div class="border-t border-aeterna-gold/30 pt-20 grid md:grid-cols-3 gap-12">
+                <div class="reveal reveal-up">
+                    <span class="text-aeterna-gold font-serif italic text-2xl">01.</span>
+                    <h4 class="mt-4 text-xl tracking-widest uppercase mb-4 font-bold text-aeterna-titanium">Titanio Grado 5</h4>
+                    <p class="text-sm text-aeterna-titanium/50 leading-relaxed">Lo stesso materiale usato nelle missioni spaziali, forgiato sotto il sole di Lombardia.</p>
+                </div>
+                <div class="reveal reveal-up" style="transition-delay: 200ms;">
+                    <span class="text-aeterna-gold font-serif italic text-2xl">02.</span>
+                    <h4 class="mt-4 text-xl tracking-widest uppercase mb-4 font-bold text-aeterna-titanium">Neural Engine</h4>
+                    <p class="text-sm text-aeterna-titanium/50 leading-relaxed">Un processore che impara i tuoi battiti, le tue abitudini, il tuo tempo.</p>
+                </div>
+                <div class="reveal reveal-up" style="transition-delay: 400ms;">
+                    <span class="text-aeterna-gold font-serif italic text-2xl">03.</span>
+                    <h4 class="mt-4 text-xl tracking-widest uppercase mb-4 font-bold text-aeterna-titanium">Vetro Zaffiro Tattile</h4>
+                    <p class="text-sm text-aeterna-titanium/50 leading-relaxed">Impenetrabile, trasparente, vivo. Un'interfaccia invisibile al tocco.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-20 border-t border-white/5 text-center bg-aeterna-black">
+        <div class="font-serif text-4xl mb-10 italic text-aeterna-gold">Aeterna</div>
+        <p class="text-[10px] tracking-[0.5em] text-aeterna-titanium/30 uppercase">Milano • Roma • Londra • Dubai</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
