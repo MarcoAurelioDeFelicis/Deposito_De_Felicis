@@ -8,3 +8,18 @@ def impreca(dude, divinità):
     print(f"{dude} dice: P***+{divinità}!!")
     
 impreca("Marco", "Anubi")
+
+def contatore (dude: str, mele: int, pere: int):
+    result = mele + pere
+    return f"{dude} ha {result} frutti"
+
+def contatore2 (mele: int, pere: int):
+    frutta = sum((mele,pere))
+    return frutta
+
+mele = 5
+pere = 3
+
+print(contatore("mirko".capitalize(), mele, pere))
+print(f'{"mirko".capitalize()} ha {contatore2(mele, pere)} frutti')
+
