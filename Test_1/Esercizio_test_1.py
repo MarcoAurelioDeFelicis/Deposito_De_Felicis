@@ -14,11 +14,12 @@
 
 while True:
     val1 = input("Inserisci un intero: ")
-    
-    if val1.isdigit() > 0:
+    num1 = 0
+    print(val1.isdigit())
+    if val1.isdigit() == True:
         num1 = int(val1)
         if num1 <= 0:
-            print("ERRORE")
+            print("ERRORE devi inserire un numero maggiore di 0")
         else:
             num1 = int(val1)
     else:
