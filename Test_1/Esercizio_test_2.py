@@ -29,6 +29,7 @@ def play():
     while True:
         user = input("inserisciuna parola: ")
         if user.isdigit():
+            print(user.isdigit())
             print("ERRORE inserisci una stringa\n")
         else:
             parola = user
