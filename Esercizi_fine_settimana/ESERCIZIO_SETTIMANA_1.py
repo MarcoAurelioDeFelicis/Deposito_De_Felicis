@@ -1,5 +1,5 @@
-# TODO: l'opzione popola deve apparire tra le scelte solo se esiste almeno una tabella con una colonna nello schema e db
-
+# TODO: --- AVVIO MODALITA POPOLAMENTO TAB: pizza ---
+#Scegli l'azione che vuoi fare: ['create', 'read', 'update', 'delete', 'back', 'crea_new_user', 'crea_col', 'popola']
 from datetime import date
 
 #env
@@ -47,23 +47,24 @@ def update_scelte(livello: str):
     else:
         scelte = ["crea_tab", "exit"]
     
-    if "mirko" in logged_user.keys():
-        scelte.append("crea_new_user")
+    if not "logged_lv3" in logged_user.values():
+        if "mirko" in logged_user.keys():
+            scelte.append("crea_new_user")
+            
+        if len(schema_tabelle) > 0:
+            scelte.append("crea_col")
+        elif "crea_col" in scelte and len(schema_tabelle) < 1:
+            scelte.pop("crea_col")
         
-    if len(schema_tabelle) > 0:
-        scelte.append("crea_col")
-    elif "crea_col" in scelte and len(schema_tabelle) < 1:
-        scelte.pop("crea_col")
-    
-    #{"pizza": {"nome": "char"}} solo {"nome": "char"}
-    has_col = any(len(col) > 0 for col in schema_tabelle.values()) 
-    if has_col:
-        if "popola" not in scelte:
-            scelte.append("popola")
-    else:
-        # Se nessuna tabella ha colonne, remove "popola" da opzioni
-        if "popola" in scelte:
-            scelte.remove("popola")
+        #{"pizza": {"nome": "char"}} solo {"nome": "char"}
+        has_col = any(len(col) > 0 for col in schema_tabelle.values()) 
+        if has_col:
+            if "popola" not in scelte:
+                scelte.append("popola")
+        else:
+            # Se nessuna tabella ha colonne, remove "popola" da opzioni
+            if "popola" in scelte:
+                scelte.remove("popola")
         
     return scelte
     
@@ -206,47 +207,98 @@ def crea_col(nome_tab: str):
             break
     else:
         print(f"Tabella non esistente {nome_tab}")
+        
+def valida(crud: str, user: str, schema_tab: str):
+    def valida_char(valore: str):
+        if not valore.isdigit():
+            return str(valore)
+        else:
+            return False
+    def valida_int(valore: str):
+        if valore.isdigit():
+            return int(valore)
+        else:
+            return False
+    def valida_bool(valore: str):
+        valore = valore.lower().strip()
+        if valore in ("true", "1", "t"):
+            return True
+        elif valore in ("false", "0", "f"):
+            return False
+        return "not_bool"
+        
+    def valida_dounble(valore: str):
+        #controllo se . in valore, se si splitto i due valori e controllo se numeri, se si return float(valore)
+        pass
+    def valida_date(valore: str):
+        #potrei fare una regex e se rispettata return valore
+        pass
+    
+    match crud:
+        case "create":
+            print("PROVA")
+            load_schema = schema_tab
+            print(load_schema)
+            load_user = user
+            print(load_user)
+            
+            #valori = set(("char","bool","int","double","date"))
+                       
+    
 
 @log_func
 def popola(nome_tab):
     print(f"\n --- AVVIO MODALITA POPOLAMENTO TAB: {nome_tab} ---\n")
     global db
     
-    while True:
-        if "popola" in scelte:
-            update_scelte("logged_lv3")
+    if nome_tab in schema_tabelle.keys() and nome_tab in db.keys():
+        try:
+            schema_tab = schema_tabelle.get(nome_tab)
+        except:
+            print("tabella senza colonne")
             
-            while True:
-                crud = input(f"Scegli l'azione che vuoi fare: {scelte}")
+        while True:
+            if "popola" in scelte:
+                update_scelte("logged_lv3")
                 
-                if crud == "back":
-                    break #Esce da crud
-                #["create", "read", "update", "delete", "back"]
-                if not crud in scelte:
-                    print("non è una crud ")
-                    continue
-                else:
-                    match crud:
-                        case "create":
-                            #mostra le colonne da schema_tabelle per tabella selezoinata,
-                            #procede alla creazione del record seguendo le regole dello schema, 
-                            #aggiungi un sistema di validazione per il tipo di dato da inserire,
-                            #salva il record in un dizionario db {Pizzeria: {
-                                #"pizza":[
-                                    #["margherita","pomodoro,mozzarella",8.00],
-                                    #["diavola","pomodoro,salame,mozzarella",10.00]
-                                # ]
-                            # }
-                            pass
-                        case "read":
-                            pass
-                        case "update":
-                            pass
-                        case "delete":
-                            pass
-                
+                while True:
+                    #["create", "read", "update", "delete", "back"]
+                    crud = input(f"Scegli l'azione che vuoi fare: {scelte}").lower()
                     
-            break #Esce da popola
+                    if crud == "back":
+                        break #Esce da crud
+                    
+                    if not crud in scelte:
+                        print("non è una crud ")
+                        continue
+                    else:
+                        match crud:
+                            case "create":
+                                print("\n--- FASE : CREATE ---\n")
+                                
+                                print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
+                                insert = input(f"Popola {nome_tab}' seguendo lo schema, separando i valori con il simbolo ( - ) ")
+                                valida(crud,insert,schema_tab)
+                                
+                                # TODO: mostra le colonne da schema_tabelle per tabella selezoinata,
+                                #procede alla creazione del record seguendo le regole dello schema, 
+                                #aggiungi un sistema di validazione per il tipo di dato da inserire,
+                                #salva il record in un dizionario db {Pizzeria: {
+                                    #"pizza":[
+                                        #["margherita","pomodoro,mozzarella",8.00],
+                                        #["diavola","pomodoro,salame,mozzarella",10.00]
+                                    # ]
+                                # }
+                                pass
+                            case "read":
+                                pass
+                            case "update":
+                                pass
+                            case "delete":
+                                pass
+                    
+                        
+                break #Esce da popola
             
         
 
