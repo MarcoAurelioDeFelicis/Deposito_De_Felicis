@@ -138,9 +138,8 @@ def crea_tab():
         else:
             print("La tabella esiste già!\n")
             break
-                
-                
-                
+ 
+@log_func                 
 def crea_col(nome_tab):
     global elenco_tabelle
     
@@ -174,8 +173,6 @@ def crea_col(nome_tab):
     else:
         print(f"Tabella non esistente {nome_tab}")
 
-    
-
 @log_func
 def crea_row():
     pass
@@ -203,9 +200,9 @@ def play():
                     crea_tab()
                 
                 case "crea_col":
-                    nome_tab = input(f"in quale tabella vuoi inserire la nuova colonna? Tabelle: {elenco_tabelle}").lower()
-                    if nome_tab in elenco_tabelle:
-                        crea_col()
+                    nome_tab = input(f"in quale tabella vuoi inserire la nuova colonna? Tabelle: {elenco_tabelle.keys()} :").lower()
+                    if nome_tab in elenco_tabelle.keys():
+                        crea_col(nome_tab)
                     else:
                         print("ERRORE")
                     
