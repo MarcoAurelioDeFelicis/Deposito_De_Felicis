@@ -1,12 +1,13 @@
 from datetime import date
 
 #env
+valori = set(("char","bool","int","double","date"))
 logged_user = {"utente": "stato"}
 utenti = {"mirko": "M123K", "marco": "123A"}
 nome_db = ""
 scelte = []
 data_creazione = 0
-elenco_tabelle = [] 
+elenco_tabelle = {}
 
 def log_func(funzione):
     def wrapper(*args, **kwargs):
@@ -19,11 +20,16 @@ def update_scelte():
     global scelte
     global logged_user
     
-    scelte = ["crea_db", "exit"] if list(logged_user.values())[0] == "logged_lv1" else ["crea_tab","exit"]
+    scelte = ["crea_db", "exit"] if "logged_lv1" in logged_user.values() else["crea_tab","exit"]
     
     if "mirko" in logged_user.keys():
         scelte.append("crea_new_user")
-    print(scelte)
+        
+    if len(elenco_tabelle) > 0:
+        scelte.append("crea_col")
+    elif "crea_col" in scelte and len(elenco_tabelle) < 1:
+        scelte.pop("crea_col")
+        
     return scelte
     
 @log_func
@@ -77,6 +83,8 @@ def crea_db():
     print("\n --- CREAZIONE DB ---")
     global nome_db
     global scelte
+    global logged_user
+    global UserWarning
     
     if "crea_db" in scelte:
         while True:
@@ -84,38 +92,99 @@ def crea_db():
                 nome = input("inserisci il nome del tuo nuovo db: ")
                 nome_db = nome
                 data_creazione = date.today()
-                scelte.remove("crea_db")
+                # scelte.remove("crea_db")
+                k, v = logged_user.popitem() 
+                logged_user[k] = "logged_lv2"
+                print(logged_user, "\n")
                 break
             else:
                 print(f"db già creato : {nome_db}")
                 break
          
                 
-    print(f"Database '{nome_db}' creato il {data_creazione}")
+    print(f"Database '{nome_db}' creato il {data_creazione}\n")
     
 @log_func    
 def crea_tab():
     print("\n --- CREAZIONE TABELLA ---")
     
     while True:
-        nome_tab =input("inserisci il nome della tabella da creare: ")
+        nome_tab =input("inserisci il nome della tabella da creare: ").lower()
+        
         if nome_tab.isdigit():
             print("il nome deve essere una stringa")
+            continue
+            
+        if not nome_tab  in elenco_tabelle:
+            elenco_tabelle[nome_tab] = {}
+        
+            print(f"Tabella '{nome_tab}' creata in {nome_db}")
+            print(f"Ora hai {len(elenco_tabelle)} tabelle\n")
+            
+            while True:
+                if len(elenco_tabelle[nome_tab]) > 0:
+                    altra = "altra "
+                else:
+                    altra = ""
+                    
+                proposta = input(f"vuoi aggiungere una {altra}colonna alla Tabella {nome_tab}? (y/n)\n")
+                if proposta == "y":
+                    crea_col(nome_tab)
+                elif proposta == "n":
+                    break # Esce dal ciclo delle colonne
+                else:
+                    print("dimmi solo 'y' o 'n' ")
+            break # Esce dal ciclo delle Tabelle
         else:
-            new_tabella = {nome_tab: {}}
-            aggiunta = elenco_tabelle.append(new_tabella)
-            if aggiunta:
-                print(f"Tabella '{nome_tab}' creata in {nome_db}")
-                print(f"Ora hai {len(elenco_tabelle)} tabelle")
-            else:
-                print(f"Qualcosa è andato storto")
-        break
+            print("La tabella esiste già!\n")
+            break
+                
+                
+                
+def crea_col(nome_tab):
+    global elenco_tabelle
     
+    if nome_tab in elenco_tabelle:
+        while True:
+            nome_col =input(f"\ninserisci nome colonna da inserire in '{nome_tab}' o 'back' per uscire: ").lower()
+            
+            if not nome_col or nome_col == "back":
+                break
+            
+            if nome_col not in elenco_tabelle[nome_tab]:
+                print(f"\nTipi ammessi: {valori}")
+                
+                while True:
+                    tipo = input(f"Inserisci tipo per {nome_col}: ").lower()
+                    
+                    if tipo in valori:
+                        elenco_tabelle[nome_tab][nome_col] = tipo
+                        print(f'Colonna "{nome_col}" ({tipo}) aggiunta a {nome_tab} con successo!\n')
+                        break
+                    
+                    elif tipo == "back":
+                        break
+                    else:
+                        print("Tipo non valido!")
+                        continue   
+            else:
+                print(f"Colonna '{nome_col}' già esistente!")
+                continue
+            break
+    else:
+        print(f"Tabella non esistente {nome_tab}")
+
+    
+
+@log_func
+def crea_row():
+    pass
 
 def play():
     login()
     
     while True:
+        update_scelte()
         user = input(f"\ncosa vuoi fare? : {scelte} (").lower()
         
         if user in scelte:
@@ -123,14 +192,22 @@ def play():
             match user:
                 case "exit":
                     exit()
-                case "crea_db":
-                    print("DB:", nome_db)
-                    crea_db()
-                case "crea_tab":
-                    crea_tab()
                     
                 case "crea_new_user":
                     registra_utente()
+                    
+                case "crea_db":
+                    crea_db()
+                    
+                case "crea_tab":
+                    crea_tab()
+                
+                case "crea_col":
+                    nome_tab = input(f"in quale tabella vuoi inserire la nuova colonna? Tabelle: {elenco_tabelle}").lower()
+                    if nome_tab in elenco_tabelle:
+                        crea_col()
+                    else:
+                        print("ERRORE")
                     
                 case _:
                     print(f"Errore: '{user}' non è tra le scelte disponibili: {scelte}")
