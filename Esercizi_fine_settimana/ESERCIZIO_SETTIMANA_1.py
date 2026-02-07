@@ -1,3 +1,5 @@
+# TODO: l'opzione popola deve apparire tra le scelte solo se esiste almeno una tabella con una colonna nello schema e db
+
 from datetime import date
 
 #env
@@ -8,6 +10,7 @@ nome_db = ""
 scelte = []
 data_creazione = 0
 schema_tabelle = {}
+db = {}
 
 def log_func(funzione):
     def wrapper(*args, **kwargs):
@@ -51,11 +54,16 @@ def update_scelte(livello: str):
         scelte.append("crea_col")
     elif "crea_col" in scelte and len(schema_tabelle) < 1:
         scelte.pop("crea_col")
-        
-    if len(schema_tabelle.values()) > 0:
-        scelte.append("popola")
-    elif "popola" in scelte and len(schema_tabelle.items) > 0:
-        scelte.pop("popola")
+    
+    #{"pizza": {"nome": "char"}} solo {"nome": "char"}
+    has_col = any(len(col) > 0 for col in schema_tabelle.values()) 
+    if has_col:
+        if "popola" not in scelte:
+            scelte.append("popola")
+    else:
+        # Se nessuna tabella ha colonne, remove "popola" da opzioni
+        if "popola" in scelte:
+            scelte.remove("popola")
         
     return scelte
     
@@ -97,7 +105,7 @@ def login():
                         print(f"\nACCESSO EFFETT_UATO... Ciao {user_name}\n")
                         logged_user = { user_name : "logged_lv1" } #inizializza lo stato per l'user corrente
                         print(logged_user)
-                        update_scelte()
+                        update_scelte("")
                         return logged_user
                     else:
                         print("ERRORE Password errata\n")
@@ -133,6 +141,7 @@ def crea_db():
 @log_func    
 def crea_tab():
     print("\n --- CREAZIONE TABELLA ---")
+    global db
     
     while True:
         nome_tab =input("inserisci il nome della tabella da creare: ").lower()
@@ -143,15 +152,14 @@ def crea_tab():
             
         if not nome_tab  in schema_tabelle:
             schema_tabelle[nome_tab] = {}
+            db[nome_tab] = {}
+            print(f" DB -- {db}")
         
             print(f"Tabella '{nome_tab}' creata in {nome_db}")
             print(f"Ora hai {len(schema_tabelle)} tabelle\n")
             
             while True:
-                if len(schema_tabelle[nome_tab]) > 0:
-                    altra = "altra "
-                else:
-                    altra = ""
+                altra = "altra " if len(schema_tabelle[nome_tab]) > 0 else ""
                     
                 proposta = input(f"vuoi aggiungere una {altra}colonna alla Tabella {nome_tab}? (y/n)\n")
                 if proposta == "y":
@@ -202,7 +210,7 @@ def crea_col(nome_tab: str):
 @log_func
 def popola(nome_tab):
     print(f"\n --- AVVIO MODALITA POPOLAMENTO TAB: {nome_tab} ---\n")
-    
+    global db
     
     while True:
         if "popola" in scelte:
@@ -220,6 +228,15 @@ def popola(nome_tab):
                 else:
                     match crud:
                         case "create":
+                            #mostra le colonne da schema_tabelle per tabella selezoinata,
+                            #procede alla creazione del record seguendo le regole dello schema, 
+                            #aggiungi un sistema di validazione per il tipo di dato da inserire,
+                            #salva il record in un dizionario db {Pizzeria: {
+                                #"pizza":[
+                                    #["margherita","pomodoro,mozzarella",8.00],
+                                    #["diavola","pomodoro,salame,mozzarella",10.00]
+                                # ]
+                            # }
                             pass
                         case "read":
                             pass
