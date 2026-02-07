@@ -186,6 +186,7 @@ def crea_col(nome_tab: str):
                     if tipo in valori:
                         schema_tabelle[nome_tab][nome_col] = tipo
                         print(f'Colonna "{nome_col}" ({tipo}) aggiunta a {nome_tab} con successo!\n')
+                        # TODO: [mostrare tutte le colonne della tabella corrente]
                         break
                     
                     elif tipo == "back":
@@ -202,15 +203,19 @@ def crea_col(nome_tab: str):
         
 def valida(crud: str, user: str, schema_tab: dict):
     def valida_char(valore: str):
+        valore.strip()
         if not valore.isdigit():
             return str(valore)
         else:
             return False
+        
     def valida_int(valore: str):
+        valore.strip()
         if valore.isdigit():
             return int(valore)
         else:
             return False
+        
     def valida_bool(valore: str):
         valore = valore.lower().strip()
         if valore in ("true", "1", "t"):
@@ -220,10 +225,10 @@ def valida(crud: str, user: str, schema_tab: dict):
         return "not_bool"
         
     def valida_double(valore: str):
-        valore = valore.replace(",", ".")
+        valore = valore.strip().replace(",", ".")
         if "." in valore:
             parti = valore.split(".")
-            print("DEBUG", parti)
+            # print("DEBUG", parti)
             if len(parti) == 2 and parti[0].isdigit() and parti[1].isdigit():
                 return float(valore)
         return False
@@ -250,7 +255,6 @@ def valida(crud: str, user: str, schema_tab: dict):
     
     match crud:
         case "create":
-            print("PROVA")
             load_user = user.split("-")
             nomi_colonne = list(schema_tab.keys()) # ["nome", "prezzo"]
             tipi_colonne = list(schema_tab.values()) # ["char", "double"]
@@ -265,91 +269,107 @@ def valida(crud: str, user: str, schema_tab: dict):
                     
                     if result is not False and result != "not_bool":
                         dati_validati.append(result)
-                        print(f"Colonna '{nome_colonna}': {da_validare} VALIDATO come {tipo_atteso}")
+                        print(f"\n Colonna '{nome_colonna}': {da_validare} VALIDATO come {tipo_atteso} ")
                     else:
-                        print(f"Errore: '{da_validare}' non è un {tipo_atteso} valido per '{nome_colonna}'")
+                        print(f"\n Errore: '{da_validare}' non è un {tipo_atteso} valido per '{nome_colonna}'\n ")
                         return False
                 return dati_validati
             else:
                 print(f"Errore: Numero di campi errato. Attesi {len(nomi_colonne)}, ricevuti {len(load_user)}")
                 return False
-            
         case _ :
             exit()
                        
-    
-
 @log_func
-def popola(nome_tab):
-    print(f"\n --- AVVIO MODALITA POPOLAMENTO TAB: {nome_tab} ---\n")
+def popola():
+    print(f"\n --- AVVIO MODALITA POPOLAMENTO ---\n")
     global db
     
-    # if nome_tab in schema_tabelle.keys() and nome_tab in db.keys():
-    if nome_tab in schema_tabelle.keys() and nome_tab in db[nome_db]:
-        if not schema_tabelle.get(nome_tab):
-            print("tabella senza colonne")
+    while True:
+        nome_tab = input(f"Quale tabella vuoi popolare? Tabelle: {schema_tabelle.keys()} :").lower()
+        if nome_tab in schema_tabelle.keys() and nome_tab in db[nome_db]:
+            nome_tab = nome_tab
+            break
         else:
-            schema_tab = schema_tabelle.get(nome_tab)
-            
-        while True:
-            if "popola" in scelte:
-                update_scelte("logged_lv3")
-                print(logged_user)
-                
-                while True:
-                    #["create", "read", "update", "delete", "back"]
-                    crud = input(f"Scegli l'azione che vuoi fare: {scelte}").lower()
-                    
-                    if crud == "back":
-                        update_scelte("logged_lv2")
-                        break #Esce da crud
-                    
-                    if not crud in scelte:
-                        print("non è una crud ")
-                        continue
-                    else:
-                        match crud:
-                            case "create":
-                                print("\n--- FASE : CREATE ---\n")
-                                
-                                print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
-                                while True:
-                                    insert = input(f"Popola {nome_tab}' seguendo lo schema, separando i valori con il simbolo ( - ) ")
-                                    record = valida(crud, insert, schema_tab) #return dati_vliati [] o false
-                                    
-                                    if record:
-                                        db[nome_db][nome_tab].append(record)
-                                        print(f"DEBUG: {db}")
-                                        print(f"Successo! Record aggiunto a {nome_db} -> {nome_tab}")
-                                    
-                                    try:
-                                        valida(crud,insert,schema_tab)
-                                        break
-                                    except:
-                                        print("Errore")
-                                        continue
-                                
-                                # TODO: mostra le colonne da schema_tabelle per tabella selezoinata,
-                                #procede alla creazione del record seguendo le regole dello schema, 
-                                #aggiungi un sistema di validazione per il tipo di dato da inserire,
-                                #salva il record in un dizionario db {Pizzeria: {
-                                    #"pizza":[
-                                        #["margherita","pomodoro,mozzarella",8.00],
-                                        #["diavola","pomodoro,salame,mozzarella",10.00]
-                                    # ]
-                                # }
-                                pass
-                            case "read":
-                                pass
-                            case "update":
-                                pass
-                            case "delete":
-                                pass
-                print("DEBUG: USCITA")    
-                break #Esce da popola
-            update_scelte("logged_lv2")
+            print("Tabella non Esistente! ")
+            continue #Torna a chiedere nome_tab
+    
+    if not schema_tabelle.get(nome_tab):
+        print("tabella senza colonne")
+        return
     else:
-        print("DEBUG: ERRORE if nome_tab in schema_tabelle.keys() and nome_tab in db[nome_db]: ")
+        schema_tab = schema_tabelle.get(nome_tab)
+        
+    while True:
+        if "popola" in scelte:
+            update_scelte("logged_lv3")
+            print(logged_user)
+            
+            while True:
+                #["create", "read", "update", "delete", "back"]
+                crud = input(f"Scegli l'azione che vuoi fare: {scelte}").lower()
+                
+                if crud == "back":
+                    update_scelte("logged_lv2")
+                    break #Esce da crud
+                
+                if not crud in scelte:
+                    print("non è una crud ")
+                    continue
+                else:
+                    match crud:
+                        # -- CREATE 1---
+                        case "create":
+                            print("\n--- FASE : CREATE ---\n")
+                            
+                            while True:
+                                print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
+                                insert = input(f"Popola {nome_tab}' seguendo lo schema, separando i valori con il simbolo ( - ) o 'back': ")
+                                if insert.lower() == "back":
+                                    break
+                                
+                                record = valida(crud, insert, schema_tab) #return dati_vliati [] o false
+                                
+                                if record:
+                                    if record in db[nome_db][nome_tab]:
+                                        print(f"ERRORE: Il record {record} è già presente nel database!")
+                                    else:
+                                        db[nome_db][nome_tab].append(record)
+                                        # print(f"DEBUG: {db}")
+                                        print(f"\n Successo! Record aggiunto a {nome_db} -> {nome_tab}\n ")
+                                        
+                                    if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
+                                        break    
+                                    # again = input("\nVuoi inserire un altro record? (y/n): ").lower()
+                                    # if again != "y":
+                                    #     break 
+                                else:
+                                    # Se record è false, il messaggio di errore è già stampato da valida()
+                                    print("Riprova l'inserimento o scrivi 'back'.")
+                                    
+                        # -- READ ALL---           
+                        case "read":
+                            print(f"\n--- FASE : READ - TABELLA: {nome_tab} ---\n")
+                            # Stampa le intestazioni (chiavi schema)
+                            print(" | ".join(schema_tab.keys()))
+                            print("-" * 30)
+                            
+                            for riga in db[nome_db][nome_tab]:
+                                # Converte ogni elemento in stringa per usare join
+                                print(" | ".join(map(str, riga)))
+                            print("\n")
+                        
+                        # -- UPDATE 1---
+                        case "update":
+                            pass
+                        case "delete":
+                            pass
+                        
+            print("DEBUG: USCITA")    
+            break #Esce da while1
+        
+        update_scelte("logged_lv2")
+    
             
         
 
@@ -385,11 +405,7 @@ def play():
                         print("ERRORE")
                         
                 case "popola":
-                    nome_tab = input(f"Quale tabella vuoi popolare? Tabelle: {schema_tabelle.keys()} :").lower()
-                    if nome_tab in schema_tabelle.keys():
-                        popola(nome_tab)
-                    else:
-                        print("ERROE")                    
+                    popola()                    
                 case _:
                     print(f"Errore: '{user}' non è tra le scelte disponibili: {scelte}")
                     continue
