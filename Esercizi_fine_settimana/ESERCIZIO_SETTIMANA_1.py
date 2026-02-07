@@ -30,6 +30,11 @@ def update_scelte():
     elif "crea_col" in scelte and len(elenco_tabelle) < 1:
         scelte.pop("crea_col")
         
+    if len(elenco_tabelle.items) > 0:
+        scelte.append("popola")
+    elif "popola" in scelte and len(elenco_tabelle.items) > 0:
+        scelte.pop("popola")
+        
     return scelte
     
 @log_func
@@ -174,8 +179,9 @@ def crea_col(nome_tab):
         print(f"Tabella non esistente {nome_tab}")
 
 @log_func
-def crea_row():
-    pass
+def popola():
+    if "popola" in scelte:
+        pass
 
 def play():
     login()
