@@ -7,7 +7,7 @@ utenti = {"mirko": "M123K", "marco": "123A"}
 nome_db = ""
 scelte = []
 data_creazione = 0
-elenco_tabelle = {}
+schema_tabelle = {}
 
 def log_func(funzione):
     def wrapper(*args, **kwargs):
@@ -16,23 +16,45 @@ def log_func(funzione):
         return risultato
     return wrapper
     
-def update_scelte():
+def update_scelte(livello: str):
     global scelte
     global logged_user
     
-    scelte = ["crea_db", "exit"] if "logged_lv1" in logged_user.values() else["crea_tab","exit"]
+    match livello:
+        case "logged_lv1":
+            k, v = logged_user.popitem() 
+            logged_user[k] = "logged_lv1"
+            
+        case "logged_lv2":
+            k, v = logged_user.popitem() 
+            logged_user[k] = "logged_lv2"
+            
+        case "logged_lv3":
+            k, v = logged_user.popitem() 
+            logged_user[k] = "logged_lv3"
+            
+        case "":
+            pass
+    
+    # scelte = ["crea_db", "exit"] if "logged_lv1" in logged_user.values() elif "logged_lv3" in logged_user.values() ["create", "read", "update", "delete", "exit"] else["crea_tab","exit"]
+    if "logged_lv1" in logged_user.values():
+        scelte = ["crea_db", "exit"]
+    elif "logged_lv3" in logged_user.values():
+        scelte = ["create", "read", "update", "delete", "back"]
+    else:
+        scelte = ["crea_tab", "exit"]
     
     if "mirko" in logged_user.keys():
         scelte.append("crea_new_user")
         
-    if len(elenco_tabelle) > 0:
+    if len(schema_tabelle) > 0:
         scelte.append("crea_col")
-    elif "crea_col" in scelte and len(elenco_tabelle) < 1:
+    elif "crea_col" in scelte and len(schema_tabelle) < 1:
         scelte.pop("crea_col")
         
-    if len(elenco_tabelle.values()) > 0:
+    if len(schema_tabelle.values()) > 0:
         scelte.append("popola")
-    elif "popola" in scelte and len(elenco_tabelle.items) > 0:
+    elif "popola" in scelte and len(schema_tabelle.items) > 0:
         scelte.pop("popola")
         
     return scelte
@@ -73,7 +95,7 @@ def login():
                 while True:
                     if password == users_password:
                         print(f"\nACCESSO EFFETT_UATO... Ciao {user_name}\n")
-                        logged_user = { user_name : "logged_lv1" }
+                        logged_user = { user_name : "logged_lv1" } #inizializza lo stato per l'user corrente
                         print(logged_user)
                         update_scelte()
                         return logged_user
@@ -98,8 +120,7 @@ def crea_db():
                 nome_db = nome
                 data_creazione = date.today()
                 # scelte.remove("crea_db")
-                k, v = logged_user.popitem() 
-                logged_user[k] = "logged_lv2"
+                update_scelte("logged_lv2")
                 print(logged_user, "\n")
                 break
             else:
@@ -120,14 +141,14 @@ def crea_tab():
             print("il nome deve essere una stringa")
             continue
             
-        if not nome_tab  in elenco_tabelle:
-            elenco_tabelle[nome_tab] = {}
+        if not nome_tab  in schema_tabelle:
+            schema_tabelle[nome_tab] = {}
         
             print(f"Tabella '{nome_tab}' creata in {nome_db}")
-            print(f"Ora hai {len(elenco_tabelle)} tabelle\n")
+            print(f"Ora hai {len(schema_tabelle)} tabelle\n")
             
             while True:
-                if len(elenco_tabelle[nome_tab]) > 0:
+                if len(schema_tabelle[nome_tab]) > 0:
                     altra = "altra "
                 else:
                     altra = ""
@@ -145,24 +166,24 @@ def crea_tab():
             break
  
 @log_func                 
-def crea_col(nome_tab):
-    global elenco_tabelle
+def crea_col(nome_tab: str):
+    global schema_tabelle
     
-    if nome_tab in elenco_tabelle:
+    if nome_tab in schema_tabelle:
         while True:
             nome_col =input(f"\ninserisci nome colonna da inserire in '{nome_tab}' o 'back' per uscire: ").lower()
             
             if not nome_col or nome_col == "back":
                 break
             
-            if nome_col not in elenco_tabelle[nome_tab]:
+            if nome_col not in schema_tabelle[nome_tab]:
                 print(f"\nTipi ammessi: {valori}")
                 
                 while True:
                     tipo = input(f"Inserisci tipo per {nome_col}: ").lower()
                     
                     if tipo in valori:
-                        elenco_tabelle[nome_tab][nome_col] = tipo
+                        schema_tabelle[nome_tab][nome_col] = tipo
                         print(f'Colonna "{nome_col}" ({tipo}) aggiunta a {nome_tab} con successo!\n')
                         break
                     
@@ -179,15 +200,45 @@ def crea_col(nome_tab):
         print(f"Tabella non esistente {nome_tab}")
 
 @log_func
-def popola():
-    if "popola" in scelte:
-        pass
+def popola(nome_tab):
+    print(f"\n --- AVVIO MODALITA POPOLAMENTO TAB: {nome_tab} ---\n")
+    
+    
+    while True:
+        if "popola" in scelte:
+            update_scelte("logged_lv3")
+            
+            while True:
+                crud = input(f"Scegli l'azione che vuoi fare: {scelte}")
+                
+                if crud == "back":
+                    break #Esce da crud
+                #["create", "read", "update", "delete", "back"]
+                if not crud in scelte:
+                    print("non è una crud ")
+                    continue
+                else:
+                    match crud:
+                        case "create":
+                            pass
+                        case "read":
+                            pass
+                        case "update":
+                            pass
+                        case "delete":
+                            pass
+                
+                    
+            break #Esce da popola
+            
+        
+
 
 def play():
     login()
     
     while True:
-        update_scelte()
+        update_scelte("")
         user = input(f"\ncosa vuoi fare? : {scelte} (").lower()
         
         if user in scelte:
@@ -206,12 +257,18 @@ def play():
                     crea_tab()
                 
                 case "crea_col":
-                    nome_tab = input(f"in quale tabella vuoi inserire la nuova colonna? Tabelle: {elenco_tabelle.keys()} :").lower()
-                    if nome_tab in elenco_tabelle.keys():
+                    nome_tab = input(f"In quale tabella vuoi inserire la nuova colonna? Tabelle: {schema_tabelle.keys()} :").lower()
+                    if nome_tab in schema_tabelle.keys():
                         crea_col(nome_tab)
                     else:
                         print("ERRORE")
-                    
+                        
+                case "popola":
+                    nome_tab = input(f"Quale tabella vuoi popolare? Tabelle: {schema_tabelle.keys()} :").lower()
+                    if nome_tab in schema_tabelle.keys():
+                        popola(nome_tab)
+                    else:
+                        print("ERROE")                    
                 case _:
                     print(f"Errore: '{user}' non è tra le scelte disponibili: {scelte}")
                     continue
