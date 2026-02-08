@@ -326,19 +326,25 @@ def popola():
             print(f"\n SUCCESSO! Record aggiunto a {nome_db} -> {nome_tab}\n ")
             return True
     
-    def drop(nome_tab: str, record: list, id_row, mode: str):
+    def drop(nome_tab: str, record: list, id_row: int, mode: str):
         match mode:
             case "one":
                 if record in db[nome_db][nome_tab]:
                     eliminato = db[nome_db][nome_tab].pop(id_row)
-                    print(f"Successo: Il record {eliminato} è stato rimosso.")
+                    print(f"SUCCESSO: Il record {eliminato} è stato rimosso.")
                     return True
                 else:
                     print("Errore: ID non trovato.")
                     return False
                 
             case "all":
-                pass
+                if nome_tab in db[nome_db]:
+                    eliminata = db[nome_db].pop(nome_tab)
+                    print(f"SUCCESSO: Tabell: {eliminata} è stata rimossa.")
+                    return True
+                else:
+                    print("Errore: Tabella non trovata.")
+                    return False
             
 
     print(f"\n --- AVVIO MODALITA POPOLAMENTO ---\n")
@@ -471,14 +477,34 @@ def popola():
                                                 break
                                             
                                             if not drop(nome_tab, record, id_row, user):
-                                                print("\nERRORE: riga non cancellata\n")
+                                                print("\nERRORE: riga NON cancellata\n")
                                                 continue
                                             else:
                                                 if input("\nvuoi ELIMINARE un alto record? (y/n): ").lower() != "y":
                                                     break
                                                 
                                 elif user == "all":
-                                    pass #TODO : aggoingere nuovo paramtro 'mode: str' in def drop, per la logica di delete all
+                                    while True:
+                                        print("\n")
+                                        view_tab(nome_tab, schema_tab)
+                                        
+                                        if input(f"sei proprio sicuro di ELIMINARE {nome_tab}? (y/n): ") != "y":
+                                            break
+                                        else: 
+                                            del_tab = input("\nInserisci il nome esatto della tabella per procedere: ").lower()
+                                            
+                                            if del_tab != nome_tab:
+                                                print("ERRORE: nome tabella errato")
+                                                break
+                                            
+                                            else:
+                                                if not drop(nome_tab, record=[], id_row=0, mode=user):
+                                                    print("\nERRORE: tabella NON cancellata\n")
+                                                    continue
+                                                else:
+                                                    if input("\nvuoi ELIMINARE un altra tabella?? (y/n): ").lower() != "y":
+                                                        break
+                                                        
                                             
                                                         
             print("DEBUG: USCITA")    
