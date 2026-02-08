@@ -331,7 +331,7 @@ def popola():
             case "one":
                 if record in db[nome_db][nome_tab]:
                     eliminato = db[nome_db][nome_tab].pop(id_row)
-                    print(f"SUCCESSO: Il record {eliminato} è stato rimosso.")
+                    print(f"SUCCESSO: Rimosso Il record {eliminato}.")
                     return True
                 else:
                     print("Errore: ID non trovato.")
@@ -340,7 +340,7 @@ def popola():
             case "all":
                 if nome_tab in db[nome_db]:
                     eliminata = db[nome_db].pop(nome_tab)
-                    print(f"SUCCESSO: Tabell: {eliminata} è stata rimossa.")
+                    print(f"SUCCESSO: Rimossa Tabella: {nome_tab, eliminata}.")
                     return True
                 else:
                     print("Errore: Tabella non trovata.")
@@ -445,7 +445,7 @@ def popola():
                             print(f"\n--- FASE : DELETE - TABELLA: {nome_tab} ---\n")
                             
                             while True:
-                                user = input("scegli 'back' o tra elimina ['all', 'one']").lower()
+                                user = input("scegli 'back' o tra elimina ['all', 'one']: ").lower()
                                 if not user in ('all', 'one', 'back'):
                                     print("ERRORE: non è una scelta disponibile")
                                     continue
@@ -483,12 +483,13 @@ def popola():
                                                 if input("\nvuoi ELIMINARE un alto record? (y/n): ").lower() != "y":
                                                     break
                                                 
+                                # -- DELETE ALL---               
                                 elif user == "all":
                                     while True:
                                         print("\n")
                                         view_tab(nome_tab, schema_tab)
                                         
-                                        if input(f"sei proprio sicuro di ELIMINARE {nome_tab}? (y/n): ") != "y":
+                                        if input(f"sei proprio sicuro di ELIMINARE tabella: '{nome_tab}'? (y/n): ") != "y":
                                             break
                                         else: 
                                             del_tab = input("\nInserisci il nome esatto della tabella per procedere: ").lower()
@@ -502,11 +503,9 @@ def popola():
                                                     print("\nERRORE: tabella NON cancellata\n")
                                                     continue
                                                 else:
-                                                    if input("\nvuoi ELIMINARE un altra tabella?? (y/n): ").lower() != "y":
-                                                        break
-                                                        
-                                            
-                                                        
+                                                    # if input("\nvuoi ELIMINARE un altra tabella? (y/n): ").lower() != "y": 
+                                                    # TODO: gestire questa situazione, rompe perche cancellando la tabella scelta non la ritrova
+                                                        break                  
             print("DEBUG: USCITA")    
             break #Esce da while 1
         
