@@ -33,7 +33,6 @@ def update_scelte(livello: str):
     if "logged_lv3" in logged_user.values():
         scelte = ["back", "create", "read"]
         if any(len(righe) > 0 for righe in db.get(nome_db, {}).values()):
-            print("DEBUG: ENTRATO!")
             if "update" not in scelte: scelte.append("update")
             if "delete" not in scelte: scelte.append("delete")
         return scelte
@@ -326,6 +325,21 @@ def popola():
             # print(f"DEBUG: {db}")
             print(f"\n SUCCESSO! Record aggiunto a {nome_db} -> {nome_tab}\n ")
             return True
+    
+    def drop(nome_tab: str, record: list, id_row, mode: str):
+        match mode:
+            case "one":
+                if record in db[nome_db][nome_tab]:
+                    eliminato = db[nome_db][nome_tab].pop(id_row)
+                    print(f"Successo: Il record {eliminato} è stato rimosso.")
+                    return True
+                else:
+                    print("Errore: ID non trovato.")
+                    return False
+                
+            case "all":
+                pass
+            
 
     print(f"\n --- AVVIO MODALITA POPOLAMENTO ---\n")
     global db
@@ -353,7 +367,7 @@ def popola():
                 update_scelte("logged_lv3")
                 
                 #["create", "read", "update", "delete", "back"]
-                crud = input(f"\n Scegli l'azione che vuoi fare: {scelte}: ").lower()
+                crud = input(f"\n Scegli l'azione che vuoi fare in {nome_tab}: {scelte}: ").lower()
                 
                 if crud == "back":
                     update_scelte("logged_lv2")
@@ -400,7 +414,7 @@ def popola():
                             
                             view_tab(nome_tab, schema_tab)
                             while True:
-                                id_row = input("Scegli 'back' o l'id della riga da modificare: ")
+                                id_row = input("Scegli 'back' o l'ID della riga da modificare: ")
                                 
                                 if id_row == 'back':
                                     break
@@ -420,12 +434,55 @@ def popola():
                                     item_tofix = input("DEBU: scegli!!!")
                                     # TODO:continuare, valutare se logica a modifica sincolo parametro o tutta la stringa  
                             
-                            
+                        # -- DELETE ---    
                         case "delete":
-                            pass
-                        
+                            print(f"\n--- FASE : DELETE - TABELLA: {nome_tab} ---\n")
+                            
+                            while True:
+                                user = input("scegli 'back' o tra elimina ['all', 'one']").lower()
+                                if not user in ('all', 'one', 'back'):
+                                    print("ERRORE: non è una scelta disponibile")
+                                    continue
+                                elif user == "back":
+                                    break
+                                
+                                # -- DELETE 1--- 
+                                elif user == "one":
+                                    while True:
+                                        print("\n")
+                                        view_tab(nome_tab, schema_tab)
+                                        
+                                        id_row = input("Scegli 'back' o l'ID della riga da cancellare: ")
+                                        
+                                        if id_row == 'back':
+                                            break
+                                        elif id_row.isdigit():
+                                            id_row = int(id_row)
+                                        else:
+                                            print("\nERRORE: id_row deve essere uno tra i numeri che vedi\n")
+                                            continue
+                                        
+                                        if id_row > len(db[nome_db][nome_tab]):
+                                            print(f"\nERRORE: id_row {id_row} NON esiste!\n")
+                                            continue
+                                        else:                                            
+                                            record = db[nome_db][nome_tab][id_row]
+                                            if input(f"Vuoi davvero eliminare {record}? (y/n): ").lower() != "y":
+                                                break
+                                            
+                                            if not drop(nome_tab, record, id_row, user):
+                                                print("\nERRORE: riga non cancellata\n")
+                                                continue
+                                            else:
+                                                if input("\nvuoi ELIMINARE un alto record? (y/n): ").lower() != "y":
+                                                    break
+                                                
+                                elif user == "all":
+                                    pass #TODO : aggoingere nuovo paramtro 'mode: str' in def drop, per la logica di delete all
+                                            
+                                                        
             print("DEBUG: USCITA")    
-            break #Esce da while1
+            break #Esce da while 1
         
         update_scelte("logged_lv2")
     
