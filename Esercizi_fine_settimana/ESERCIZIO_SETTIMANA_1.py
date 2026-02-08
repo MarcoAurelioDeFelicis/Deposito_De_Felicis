@@ -211,7 +211,10 @@ def crea_col(nome_tab: str):
         print(f"Tabella non esistente {nome_tab}")
         
 def view_tab(nome_tab, schema_tab):
-    
+    if not nome_tab in db[nome_db]:
+        print("ERRORE: nessuna tabella o tabella inesistente")
+        return 
+        
     headers = ["id_row"] + list(schema_tab.keys())
     print(" | ".join(headers))
     print("-" * (len(headers) * 12)) # Linea proporzionale alle colonne
@@ -222,7 +225,7 @@ def view_tab(nome_tab, schema_tab):
     print("\n")
 
         
-def valida(crud: str, user: str, schema_tab: dict, nome_tab=None):
+def valida(crud: str, user: str, schema_tab: dict, nome_tab, id_row):
     def valida_char(valore: str):
         valore = valore.strip().lower()
         if not valore.isdigit():
@@ -309,7 +312,42 @@ def valida(crud: str, user: str, schema_tab: dict, nome_tab=None):
                 return False
             
         case "update":
-            pass
+            if user != "" and "->" in user :
+                user = user.strip()
+                parti = user.split("->")
+                print("DEBUG: parti", parti)
+            else:
+                print("ERRORE: update non nel formato richiesto ('old -> new')|n" )
+                return False
+            
+            if len(parti) == 2 and parti[0] != parti[1]:
+                nomi_colonne = list(schema_tab.keys()) # ["nome", "prezzo"]
+                tipi_colonne = list(schema_tab.values()) # ["char", "double"]
+                dati_validati = []
+                old_param = parti[0].strip()
+                da_validare = parti[1].strip()
+                record = db[nome_db][nome_tab][id_row]
+                # tipo_atteso = tipi_colonne[old_param]
+    
+                if old_param in record :
+                    idx_list = record.index(old_param)
+                    print(f"DEBUG: Found '{old_param}' at index: {idx_list}")
+                    tipo_atteso = tipi_colonne[idx_list]
+                    nome_colonna = nomi_colonne[idx_list]
+                            
+                    result = valida_input(da_validare, tipo_atteso)
+                    
+                    if result is not False and result != "not_bool":
+                        dati_validati.append(result)
+                        print(f"\n Colonna {nome_colonna}: '{da_validare}' VALIDATO come {tipo_atteso} ")
+                    else:
+                        print(f"\n Errore: '{da_validare}' non è un {tipo_atteso} valido per '{nome_colonna}'\n ")
+                        return False
+                    
+                    return dati_validati
+                else:
+                    print(f"ERRORE: dato non trovato nel record {record}")
+                
         case _ :
             exit()
                        
@@ -328,6 +366,7 @@ def popola():
     
     def drop(nome_tab: str, record: list, id_row: int, mode: str):
         match mode:
+            
             case "one":
                 if record in db[nome_db][nome_tab]:
                     eliminato = db[nome_db][nome_tab].pop(id_row)
@@ -345,6 +384,20 @@ def popola():
                 else:
                     print("Errore: Tabella non trovata.")
                     return False
+                
+    def fix(nome_tab:str , record:list, id_row:int, mode: str,):
+        if record in db[nome_db][nome_tab]:
+            match mode:
+                
+                case "whole":
+                    pass
+                
+                case "one":
+                    #TODO: già tutto validato devo solo prendere il vecchio e sostituirlo con il nuovo 
+                    pass
+        else:
+            print("ERRORE: Record non esistente")
+        #TODO: finzione per l'update 
             
 
     print(f"\n --- AVVIO MODALITA POPOLAMENTO ---\n")
@@ -402,9 +455,6 @@ def popola():
                                         
                                         if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
                                             break    
-                                        # again = input("\nVuoi inserire un altro record? (y/n): ").lower()
-                                        # if again != "y":
-                                        #     break 
                                 else:
                                     # Se record è false, il messaggio di errore è già stampato da valida()
                                     print("Riprova l'inserimento o scrivi 'back'.\n")
@@ -433,11 +483,42 @@ def popola():
                                 if id_row > len(db[nome_db][nome_tab]):
                                     print(f"ERRORE: id_row {id_row} NON esiste!")
                                     continue
-                                else:
-                                    print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
+                                
+                                else:                                    
                                     row_tofix = db[nome_db][nome_tab][id_row]
                                     print("DEBUG:", row_tofix, "DB:", db)
-                                    item_tofix = input("DEBU: scegli!!!")
+                                    scelta = input(" scegli 'back' o tra modificare ['whole', 'one']").lower()
+                                    
+                                    if not scelta in ('whole', 'one'):
+                                        print("ERRORE: scelta non valida")
+                                        continue
+                                    elif scelta == "back":
+                                        break
+                                    
+                                    print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
+                                    print(f"La row da fixare: {row_tofix}\n")
+                                    # --- WHOLE ---
+                                    if scelta == "whole":
+                                        pass 
+                                    
+                                    # --- ONE ---
+                                    elif scelta == "one":
+                                        user = input("modifica così: (parametro -> parametro modificato): ").lower()
+                                        
+                                        record = valida(crud, user, schema_tab, nome_tab, id_row)
+                                        
+                                        if record:
+                                            if fix(nome_tab, record, id_row, mode=scelta): 
+                                                
+                                                if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
+                                                    break    
+                                        else:
+                                            # Se record è false, il messaggio di errore è già stampato da valida()
+                                            print("Riprova l'inserimento o scrivi 'back'.\n")
+                                        # fix(nome_db, row_tofix, id_row, user, parameter)
+                                        pass 
+                                    
+                                    
                                     # TODO:continuare, valutare se logica a modifica sincolo parametro o tutta la stringa  
                             
                         # -- DELETE ---    
@@ -505,6 +586,8 @@ def popola():
                                                 else:
                                                     # if input("\nvuoi ELIMINARE un altra tabella? (y/n): ").lower() != "y": 
                                                     # TODO: gestire questa situazione, rompe perche cancellando la tabella scelta non la ritrova
+                                                    # prova?: chiedere nuovamente dentro dal all il nome_tab da eliminare
+                                            
                                                         break                  
             print("DEBUG: USCITA")    
             break #Esce da while 1
