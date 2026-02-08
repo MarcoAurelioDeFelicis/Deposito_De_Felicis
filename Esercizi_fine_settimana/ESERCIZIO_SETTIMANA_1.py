@@ -191,7 +191,7 @@ def crea_col(nome_tab: str):
                 print(f"\nTipi ammessi: {valori}")
                 
                 while True:
-                    tipo = input(f"Inserisci 'back' per uscire o tipo per {nome_col}: ").lower()
+                    tipo = input(f"Inserisci 'back' per uscire o TIPO per {nome_col}: ").lower()
                     
                     if tipo in valori:
                         schema_tabelle[nome_tab][nome_col] = tipo
@@ -316,6 +316,17 @@ def valida(crud: str, user: str, schema_tab: dict, nome_tab=None):
                        
 @log_func
 def popola():
+    
+    def add(nome_tab: str, record: list):
+        if record in db[nome_db][nome_tab]:
+            print(f"ERRORE: Il record {record} è già presente nel database!")
+            return False
+        else:
+            db[nome_db][nome_tab].append(record)
+            # print(f"DEBUG: {db}")
+            print(f"\n SUCCESSO! Record aggiunto a {nome_db} -> {nome_tab}\n ")
+            return True
+
     print(f"\n --- AVVIO MODALITA POPOLAMENTO ---\n")
     global db
     
@@ -367,22 +378,17 @@ def popola():
                                 record = valida(crud, insert, schema_tab) #return dati_vliati [] o false
                                 
                                 if record:
-                                    if record in db[nome_db][nome_tab]:
-                                        print(f"ERRORE: Il record {record} è già presente nel database!")
-                                    else:
-                                        db[nome_db][nome_tab].append(record)
-                                        # print(f"DEBUG: {db}")
-                                        print(f"\n SUCCESSO! Record aggiunto a {nome_db} -> {nome_tab}\n ")
+                                    if add(nome_tab, record): 
                                         
-                                    if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
-                                        break    
-                                    # again = input("\nVuoi inserire un altro record? (y/n): ").lower()
-                                    # if again != "y":
-                                    #     break 
+                                        if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
+                                            break    
+                                        # again = input("\nVuoi inserire un altro record? (y/n): ").lower()
+                                        # if again != "y":
+                                        #     break 
                                 else:
                                     # Se record è false, il messaggio di errore è già stampato da valida()
                                     print("Riprova l'inserimento o scrivi 'back'.\n")
-                                    
+                                        
                         # -- READ ALL---           
                         case "read":
                             print(f"\n--- FASE : READ - TABELLA: {nome_tab} ---\n")
@@ -439,7 +445,14 @@ def play():
             match user:
                 case "exit":
                     exit()
-                    
+                
+                case "back":
+                    #TODO: se back torna a login, resetta nome_db e (NUOV: seleziona_db) 
+                    # opzione che appare al login, solo se un db è stato creato in precedenza
+                    # capire dove salvare i db creati. 
+                    # seleziona_db aggiorna global nome_db e carica le tabelle(schema_tab e db{})
+                    pass
+                
                 case "crea_new_user":
                     registra_utente()
                     
