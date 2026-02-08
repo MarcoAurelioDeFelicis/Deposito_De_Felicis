@@ -1,5 +1,5 @@
 # TODO: [1.validazione di bool non va]
-
+#DB: {'Pizzeria': {'pizza': [['margherita', 8.0], ['rossa', 5.0]]}}
 
 from datetime import date
 import re
@@ -336,10 +336,11 @@ def popola():
         
     while True:
         if "popola" in scelte:
-            update_scelte("logged_lv3")
             print(logged_user)
             
             while True:
+                update_scelte("logged_lv3")
+                
                 #["create", "read", "update", "delete", "back"]
                 crud = input(f"\n Scegli l'azione che vuoi fare: {scelte}: ").lower()
                 
@@ -371,7 +372,7 @@ def popola():
                                     else:
                                         db[nome_db][nome_tab].append(record)
                                         # print(f"DEBUG: {db}")
-                                        print(f"\n Successo! Record aggiunto a {nome_db} -> {nome_tab}\n ")
+                                        print(f"\n SUCCESSO! Record aggiunto a {nome_db} -> {nome_tab}\n ")
                                         
                                     if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
                                         break    
