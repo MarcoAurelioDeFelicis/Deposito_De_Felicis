@@ -1,12 +1,11 @@
-# TODO: [1.fix di opzione popola: deve mostrare solo le tabelle cha hanno almeno una colonna,
-# bug insrimento col gia esistenti]
+# TODO: [1.validazione di bool non va]
 
 
 from datetime import date
 import re
 
 #env
-valori = set(("char","bool","int","double","date"))
+valori = set(("char","bool","int","double","date","auto_increment"))
 logged_user = {"utente": "stato"}
 utenti = {"mirko": "M123K", "marco": "123A"}
 nome_db = ""
@@ -32,10 +31,16 @@ def update_scelte(livello: str):
 
     # Reset scelte base
     if "logged_lv3" in logged_user.values():
-        scelte = ["back", "create", "read", "update", "delete"]
+        scelte = ["back", "create", "read"]
+        if any(len(righe) > 0 for righe in db.get(nome_db, {}).values()):
+            print("DEBUG: ENTRATO!")
+            if "update" not in scelte: scelte.append("update")
+            if "delete" not in scelte: scelte.append("delete")
         return scelte
+    
     elif "logged_lv1" in logged_user.values():
         scelte = ["exit", "crea_db"]
+        
     elif "logged_lv2" in logged_user.values():
         scelte = ["exit", "crea_tab"]
         
@@ -176,8 +181,13 @@ def crea_col(nome_tab: str):
                 continue
             elif nome_col == "back":
                 break
+                
             
             if nome_col not in schema_tabelle[nome_tab] and nome_col != "":
+                # if not nome_col == "id" and schema_tabelle[nome_tab] <= 0:
+                #     schema_tabelle[nome_tab]["id"] = "auto_increment"
+                #     print("")
+                    
                 print(f"\nTipi ammessi: {valori}")
                 
                 while True:
@@ -185,8 +195,8 @@ def crea_col(nome_tab: str):
                     
                     if tipo in valori:
                         schema_tabelle[nome_tab][nome_col] = tipo
-                        print(f'Colonna "{nome_col}" ({tipo}) aggiunta a {nome_tab} con successo!\n')
-                        # TODO: [mostrare tutte le colonne della tabella corrente]
+                        print(f'Colonna "{nome_col}" ({tipo}) aggiunta a {nome_tab} con successo!')
+                        print(f"Schema aggiornato {nome_tab} : {schema_tabelle[nome_tab]}\n")
                         break
                     
                     elif tipo == "back":
@@ -201,27 +211,39 @@ def crea_col(nome_tab: str):
     else:
         print(f"Tabella non esistente {nome_tab}")
         
-def valida(crud: str, user: str, schema_tab: dict):
+def view_tab(nome_tab, schema_tab):
+    
+    headers = ["id_row"] + list(schema_tab.keys())
+    print(" | ".join(headers))
+    print("-" * (len(headers) * 12)) # Linea proporzionale alle colonne
+    
+    for i, riga in enumerate(db[nome_db][nome_tab], start=0):
+        record_con_id = [i] + riga
+        print(" | ".join(map(str, record_con_id)))
+    print("\n")
+
+        
+def valida(crud: str, user: str, schema_tab: dict, nome_tab=None):
     def valida_char(valore: str):
-        valore.strip()
+        valore = valore.strip().lower()
         if not valore.isdigit():
             return str(valore)
         else:
             return False
         
     def valida_int(valore: str):
-        valore.strip()
+        valore = valore.strip()
         if valore.isdigit():
             return int(valore)
         else:
             return False
         
     def valida_bool(valore: str):
-        valore = valore.lower().strip()
-        if valore in ("true", "1", "t"):
-            return True
-        elif valore in ("false", "0", "f"):
-            return False
+        valore = valore.strip()
+        if valore in ("true", "1", "t", "si", "yes"):
+            return "True"
+        elif valore in ("false", '0', "f", "no"):
+            return "False"
         return "not_bool"
         
     def valida_double(valore: str):
@@ -240,14 +262,23 @@ def valida(crud: str, user: str, schema_tab: dict):
             return valore
         return False
     
+    # def valida_auto_increment() -> int:
+    #     current_tab = db[nome_db].get(nome_tab, [])
+    #     if not current_tab:
+    #         return 1
+    #     latest_id = current_tab[-1][0]
+    #     return latest_id + 1
+        
+    
     def valida_input(valore, tipo):
         mappa_validatori = {
             "char": valida_char,
             "int": valida_int,
             "bool": valida_bool,
             "double": valida_double,
-            "date": valida_date}
-        
+            "date": valida_date,
+            # "update": valida_auto_increment
+        }
         funzione = mappa_validatori.get(tipo)
         if funzione:
             return funzione(valore)# costruzione della funzione da usare 
@@ -262,14 +293,14 @@ def valida(crud: str, user: str, schema_tab: dict):
             
             if len(load_user) == len(nomi_colonne):
                 for i in range(len(load_user)):
-                    da_validare = load_user[i]
+                    da_validare = load_user[i].strip()
                     tipo_atteso = tipi_colonne[i]
                     nome_colonna = nomi_colonne[i]
                     result = valida_input(da_validare, tipo_atteso)
                     
                     if result is not False and result != "not_bool":
                         dati_validati.append(result)
-                        print(f"\n Colonna '{nome_colonna}': {da_validare} VALIDATO come {tipo_atteso} ")
+                        print(f"\n Colonna {nome_colonna}: '{da_validare}' VALIDATO come {tipo_atteso} ")
                     else:
                         print(f"\n Errore: '{da_validare}' non è un {tipo_atteso} valido per '{nome_colonna}'\n ")
                         return False
@@ -277,6 +308,9 @@ def valida(crud: str, user: str, schema_tab: dict):
             else:
                 print(f"Errore: Numero di campi errato. Attesi {len(nomi_colonne)}, ricevuti {len(load_user)}")
                 return False
+            
+        case "update":
+            pass
         case _ :
             exit()
                        
@@ -307,7 +341,7 @@ def popola():
             
             while True:
                 #["create", "read", "update", "delete", "back"]
-                crud = input(f"Scegli l'azione che vuoi fare: {scelte}").lower()
+                crud = input(f"\n Scegli l'azione che vuoi fare: {scelte}: ").lower()
                 
                 if crud == "back":
                     update_scelte("logged_lv2")
@@ -318,6 +352,7 @@ def popola():
                     continue
                 else:
                     match crud:
+                        
                         # -- CREATE 1---
                         case "create":
                             print("\n--- FASE : CREATE ---\n")
@@ -345,23 +380,40 @@ def popola():
                                     #     break 
                                 else:
                                     # Se record è false, il messaggio di errore è già stampato da valida()
-                                    print("Riprova l'inserimento o scrivi 'back'.")
+                                    print("Riprova l'inserimento o scrivi 'back'.\n")
                                     
                         # -- READ ALL---           
                         case "read":
                             print(f"\n--- FASE : READ - TABELLA: {nome_tab} ---\n")
-                            # Stampa le intestazioni (chiavi schema)
-                            print(" | ".join(schema_tab.keys()))
-                            print("-" * 30)
-                            
-                            for riga in db[nome_db][nome_tab]:
-                                # Converte ogni elemento in stringa per usare join
-                                print(" | ".join(map(str, riga)))
-                            print("\n")
+                            view_tab(nome_tab, schema_tab)
                         
                         # -- UPDATE 1---
                         case "update":
-                            pass
+                            print(f"\n--- FASE : UPDATE - TABELLA: {nome_tab} ---\n")
+                            
+                            view_tab(nome_tab, schema_tab)
+                            while True:
+                                id_row = input("Scegli 'back' o l'id della riga da modificare: ")
+                                
+                                if id_row == 'back':
+                                    break
+                                elif id_row.isdigit():
+                                    id_row = int(id_row)
+                                else:
+                                    print("ERRORE: id_row deve essere uno tra i numeri che vedi")
+                                    continue
+                                
+                                if id_row > len(db[nome_db][nome_tab]):
+                                    print(f"ERRORE: id_row {id_row} NON esiste!")
+                                    continue
+                                else:
+                                    print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
+                                    row_tofix = db[nome_db][nome_tab][id_row]
+                                    print("DEBUG:", row_tofix, "DB:", db)
+                                    item_tofix = input("DEBU: scegli!!!")
+                                    # TODO:continuare, valutare se logica a modifica sincolo parametro o tutta la stringa  
+                            
+                            
                         case "delete":
                             pass
                         
@@ -370,16 +422,15 @@ def popola():
         
         update_scelte("logged_lv2")
     
-            
-        
-
+           
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def play():
     login()
     
     while True:
         update_scelte("")
-        print("DEBUG: ", logged_user)
+        print("STATO: ", logged_user)
         user = input(f"\ncosa vuoi fare? : {scelte} (").lower()
         
         if user in scelte:
