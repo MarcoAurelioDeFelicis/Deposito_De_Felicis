@@ -5,7 +5,7 @@ from datetime import date
 import re
 
 #env
-valori = set(("char","bool","int","double","date","auto_increment"))
+valori = set(("char","bool","int","double","date")) #TODO: ,"auto_increment" da sistemare
 logged_user = {"utente": "stato"}
 utenti = {"mirko": "M123K", "marco": "123A"}
 nome_db = ""
@@ -97,7 +97,6 @@ def login():
                     if password == users_password:
                         print(f"\nACCESSO EFFETT_UATO... Ciao {user_name}\n")
                         logged_user = { user_name : "logged_lv1" } #inizializza lo stato per l'user corrente
-                        print(logged_user)
                         update_scelte("")
                         return logged_user
                     else:
@@ -225,7 +224,7 @@ def view_tab(nome_tab, schema_tab):
     print("\n")
 
         
-def valida(crud: str, user: str, schema_tab: dict, nome_tab, id_row):
+def valida(crud: str, user: str, schema_tab: dict, nome_tab=None, id_row=None):
     def valida_char(valore: str):
         valore = valore.strip().lower()
         if not valore.isdigit():
@@ -315,38 +314,49 @@ def valida(crud: str, user: str, schema_tab: dict, nome_tab, id_row):
             if user != "" and "->" in user :
                 user = user.strip()
                 parti = user.split("->")
+                # parti = [p.strip() for p in user.split("->")]
                 print("DEBUG: parti", parti)
+                part_0 = parti[0].strip()
+                part_1 = parti[1].strip()
+                print(f"DEBUG: part_0 '{part_0}'  ")
+                print(f"DEBUG: part_1 '{part_1}'  ")
             else:
-                print("ERRORE: update non nel formato richiesto ('old -> new')|n" )
+                print("ERRORE: update non nel formato richiesto ('old -> new')\n" )
                 return False
             
-            if len(parti) == 2 and parti[0] != parti[1]:
+            if len(parti) == 2 and part_0 != part_1:
                 nomi_colonne = list(schema_tab.keys()) # ["nome", "prezzo"]
                 tipi_colonne = list(schema_tab.values()) # ["char", "double"]
                 dati_validati = []
-                old_param = parti[0].strip()
-                da_validare = parti[1].strip()
-                record = db[nome_db][nome_tab][id_row]
+                old_param = part_0
+                da_validare = part_1
+                row = db[nome_db][nome_tab][id_row]
+                print("DEBUG: rew:", row)
                 # tipo_atteso = tipi_colonne[old_param]
-    
-                if old_param in record :
-                    idx_list = record.index(old_param)
-                    print(f"DEBUG: Found '{old_param}' at index: {idx_list}")
-                    tipo_atteso = tipi_colonne[idx_list]
-                    nome_colonna = nomi_colonne[idx_list]
+                idx_tomatch = -1
+                for i, valore_db in enumerate(row):
+                    if str(valore_db) == old_param: # Confronto tra stringhe
+                        idx_tomatch = i
+                        break
+            
+                if idx_tomatch != -1:
+                    print(f"DEBUG: Found '{old_param}' at index: {idx_tomatch}")
+                    tipo_atteso = tipi_colonne[idx_tomatch]
+                    nome_colonna = nomi_colonne[idx_tomatch]
                             
                     result = valida_input(da_validare, tipo_atteso)
+                    print(f"DEBUG: result '{result}' typo: {type(result)}")
                     
                     if result is not False and result != "not_bool":
                         dati_validati.append(result)
-                        print(f"\n Colonna {nome_colonna}: '{da_validare}' VALIDATO come {tipo_atteso} ")
+                        print(f"VALIDATO: {nome_colonna} -> {result} come {tipo_atteso}")
+                        return dati_validati , row, old_param, idx_tomatch
                     else:
                         print(f"\n Errore: '{da_validare}' non è un {tipo_atteso} valido per '{nome_colonna}'\n ")
                         return False
-                    
-                    return dati_validati
                 else:
-                    print(f"ERRORE: dato non trovato nel record {record}")
+                    print(f"ERRORE: dato non trovato nel record {row}")
+                    return False
                 
         case _ :
             exit()
@@ -378,7 +388,8 @@ def popola():
                 
             case "all":
                 if nome_tab in db[nome_db]:
-                    eliminata = db[nome_db].pop(nome_tab)
+                    eliminata = db[nome_db][nome_tab].clear() #.pop()cancella tutto l'ogetto
+                    # schema_tabelle[nome_tab].clear()
                     print(f"SUCCESSO: Rimossa Tabella: {nome_tab, eliminata}.")
                     return True
                 else:
@@ -386,13 +397,34 @@ def popola():
                     return False
                 
     def fix(nome_tab:str , record:list, id_row:int, mode: str,):
-        if record in db[nome_db][nome_tab]:
+        # return dati_validati , row, old_param, idx_tomatch (return di def valida)
+        print(f"DEBUG: record[2] '{record[2]}' ")
+        print(f"typo of record[2] {type(record[2])}")
+        print(f"fi record in :  {db[nome_db][nome_tab][id_row]}")
+        print(f"mode: {mode}")
+        if record[2] in db[nome_db][nome_tab][id_row]:
             match mode:
                 
                 case "whole":
                     pass
                 
                 case "one":
+                    to_add = record[0]# il parametro da andare a switchare
+                    row = record[1]# tutta la riga da andare ad iterare
+                    old_param = record[2]# il parametro da droppare
+                    idx_list = record[3]
+                    print(f"DEBUG: to_add:{to_add}, row:{row}, old_param:{old_param}, idx_list:{idx_list}")
+                    
+                    if old_param in row:
+                        db_row = db[nome_db][nome_tab][id_row][idx_list]
+                        db_row[old_param] = db_row[to_add]
+                        print(f"SUCCESSO: fix di {old_param} -> {to_add}")
+                        return True
+                        
+                        
+                    
+                    
+                    
                     #TODO: già tutto validato devo solo prendere il vecchio e sostituirlo con il nuovo 
                     pass
         else:
@@ -404,7 +436,7 @@ def popola():
     global db
     
     while True:
-        nome_tab = input(f"Quale tabella vuoi popolare? Tabelle: {schema_tabelle.keys()} :").lower()
+        nome_tab = input(f"\nQuale tabella vuoi popolare? Tabelle: {schema_tabelle.keys()} :").lower()
         if nome_tab in schema_tabelle.keys() and nome_tab in db[nome_db]:
             nome_tab = nome_tab
             break
@@ -468,9 +500,9 @@ def popola():
                         case "update":
                             print(f"\n--- FASE : UPDATE - TABELLA: {nome_tab} ---\n")
                             
-                            view_tab(nome_tab, schema_tab)
                             while True:
-                                id_row = input("Scegli 'back' o l'ID della riga da modificare: ")
+                                view_tab(nome_tab, schema_tab)
+                                id_row = input("Scegli 'back' o l'ID della riga da modificare: ").strip()
                                 
                                 if id_row == 'back':
                                     break
@@ -481,7 +513,7 @@ def popola():
                                     continue
                                 
                                 if id_row > len(db[nome_db][nome_tab]):
-                                    print(f"ERRORE: id_row {id_row} NON esiste!")
+                                    print(f"\nERRORE: id_row {id_row} NON esiste!\n")
                                     continue
                                 
                                 else:                                    
@@ -495,7 +527,7 @@ def popola():
                                     elif scelta == "back":
                                         break
                                     
-                                    print(f"La tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
+                                    print(f"\nLa tabella '{nome_tab}' ha il seguente schema colone: {schema_tab}")
                                     print(f"La row da fixare: {row_tofix}\n")
                                     # --- WHOLE ---
                                     if scelta == "whole":
@@ -507,17 +539,15 @@ def popola():
                                         
                                         record = valida(crud, user, schema_tab, nome_tab, id_row)
                                         
-                                        if record:
-                                            if fix(nome_tab, record, id_row, mode=scelta): 
+                                        if record != False:
+                                            if fix(nome_tab, record, id_row, mode=scelta):
                                                 
-                                                if input("Vuoi inserire un altro record? (y/n): ").lower() != "y":
+                                                if input("Vuoi modificare un altro record? (y/n): ").lower() != "y":
                                                     break    
                                         else:
                                             # Se record è false, il messaggio di errore è già stampato da valida()
                                             print("Riprova l'inserimento o scrivi 'back'.\n")
-                                        # fix(nome_db, row_tofix, id_row, user, parameter)
-                                        pass 
-                                    
+                                            continue                                    
                                     
                                     # TODO:continuare, valutare se logica a modifica sincolo parametro o tutta la stringa  
                             
@@ -539,7 +569,7 @@ def popola():
                                         print("\n")
                                         view_tab(nome_tab, schema_tab)
                                         
-                                        id_row = input("Scegli 'back' o l'ID della riga da cancellare: ")
+                                        id_row = input("Scegli 'back' o l'ID della riga da cancellare: ").strip()
                                         
                                         if id_row == 'back':
                                             break
@@ -549,7 +579,7 @@ def popola():
                                             print("\nERRORE: id_row deve essere uno tra i numeri che vedi\n")
                                             continue
                                         
-                                        if id_row > len(db[nome_db][nome_tab]):
+                                        if id_row >= len(db[nome_db][nome_tab]):
                                             print(f"\nERRORE: id_row {id_row} NON esiste!\n")
                                             continue
                                         else:                                            
@@ -561,6 +591,7 @@ def popola():
                                                 print("\nERRORE: riga NON cancellata\n")
                                                 continue
                                             else:
+                                                
                                                 if input("\nvuoi ELIMINARE un alto record? (y/n): ").lower() != "y":
                                                     break
                                                 
