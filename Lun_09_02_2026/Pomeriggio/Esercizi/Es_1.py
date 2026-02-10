@@ -46,6 +46,13 @@ class User:
         for u in utenti.values():
             print(u)
         print("--------------------------\n")
+        
+    #2
+    def crea_utente(nome, password, nuovo_id, utenti):
+        user_OBJ = User(nome, password, nuovo_id, "staff")
+        utenti[nome.lower()] = user_OBJ
+        print(f"Utente {nome} creato con successo.")
+        return user_OBJ
       
         
         
@@ -260,10 +267,8 @@ def play():
                     pw = input("Password: ")
                     nuovo_id = len(utenti) + 1
                     
-                    user_OBJ = User(nome, pw, nuovo_id, "staff")
-                    utenti[nome.lower()] = user_OBJ
-                    print(f"Utente {nome} creato con successo.")
-
+                    current_user.crea_utente()
+                    
                 elif opzione == "3":
                     id_target = input("ID utente da promuovere: ")
                     for u in utenti.values():

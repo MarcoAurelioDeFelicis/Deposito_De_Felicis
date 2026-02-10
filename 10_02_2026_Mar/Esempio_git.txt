@@ -1,0 +1,6 @@
+Il Versionamento: è un
+
+
+Capacità: (Conservare la storia) e (Gestire conflitti):
+
+Gestione del branching e merging 
