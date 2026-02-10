@@ -1,10 +1,10 @@
-class Biblioteca:
+class Biblioteca():
     libri = {} 
 
     def __str__(self):
         return f"La Biblioteca ha {len(self.libri)} libri.\nElenco:\n{self.libri}"
 
-    class Libro:
+    class Libro():
         def __init__(self, titolo, autore, pagine):
             self.titolo = titolo
             self.autore = autore
@@ -33,6 +33,9 @@ class Biblioteca:
             except ValueError:
                 print("Errore: le pagine devono essere un numero!")
                 continue
+
+
+
 
 def play():
     mia_biblio = Biblioteca()

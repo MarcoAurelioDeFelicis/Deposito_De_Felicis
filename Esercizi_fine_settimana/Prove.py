@@ -13,17 +13,17 @@ elenco_tabelle = {
 # nome_tab = "utenti"
 # print(elenco_tabelle.get(nome_tab))
 
-db = {'Pizzeria': {'pizza': [['margherita', 8.0], ['rossa', 5.0]]}}
+db = {'Pizzeria': {'pizza': [['bianca', 5.0], ['rossa', 4.0]]}}
 
 old_param = 'rossa'
 nome_tab = 'pizza'
 id_row = 1
 
-check = db[nome_db][nome_tab][id_row]
-print(check)
+row = db[nome_db][nome_tab][id_row]
+print(row)
 
-if old_param in check:
-    idx = check.index(old_param)
+if old_param in row:
+    idx = row.index(old_param)
     print(f"Found '{old_param}' at index: {idx}")
 
 schema_tab = {'nome': 'char', 'prezzo': 'double'}
@@ -32,3 +32,14 @@ print(f"DEBUG : tipi_col: {tipi_colonne}")
 
 tipo_atteso = tipi_colonne[idx]
 print(f"DEBUG: {tipo_atteso}")
+
+
+
+
+# row = db[nome_db][nome_tab][id_row]
+# print("DEBUG: rew:", row)
+# # tipo_atteso = tipi_colonne[old_param]
+
+# if old_param in row :
+#     idx_list = row.index(old_param)
+#     print(f"DEBUG: Found '{old_param}' at index: {idx_list}")
