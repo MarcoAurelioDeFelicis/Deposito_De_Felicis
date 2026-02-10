@@ -40,7 +40,13 @@ class User:
             self.isadmin = True
             return True
         return False
-                
+    #1
+    def stampa_uteni(utenti: dict):
+        print("\nDATABASE UTENTI:")
+        for u in utenti.values():
+            print(u)
+        print("--------------------------\n")
+      
         
         
 class Magazzino():
@@ -137,7 +143,7 @@ class Magazzino():
         print("------------------------------------------\n")
         
         
-def login(user_name: str, password: str, utenti):
+def login(user_name: str, password: str, utenti: dict):
         user = utenti.get(user_name.lower())
         # se l'utente esiste e la password coincide
         if user and user.password == password:
@@ -215,8 +221,8 @@ def play():
             if state_admin:
                 scelte_disponibili.extend(["1", "2", "3", "4", "9"]) # Admin vede utenti e log
                 print("\nMENU ADMIN:")
-                print("1) Visualizza Utenti") #TODO : aggiungere funzione in user
-                print("2) Crea Nuovo Utente") #TODO : aggiungere funzione in user BUG: deve bloccare l'aggiunta di un utente gia inserito
+                print("1) Visualizza Utenti")
+                print("2) Crea Nuovo Utente") #TODO : aggiungere funzione in user BUG: deve bloccare l'aggiunta di untente gia registrato
                 print("3) Promuovi Utente")
                 print("4) Visualizza Inventario")
                 print("9) Visualizza Storico Ordini")
@@ -246,10 +252,7 @@ def play():
             else:
                 # 1, 2, 3: Gestione Utenti
                 if opzione == "1":
-                    print("\nDATABASE UTENTI:")
-                    for u in utenti.values():
-                        print(u)
-                    print("--------------------------\n")
+                    current_user.stampa_uteni(utenti)
 
                 elif opzione == "2":
                     print("\nFASE: CREA NEW USER \n")
