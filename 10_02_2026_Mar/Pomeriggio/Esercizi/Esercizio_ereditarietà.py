@@ -31,9 +31,13 @@ class Prodotto:
         self.prezzo_vendita = prezzo_vendita
         self.unita = unita
         
-        def calcola_profitto(self):
-            # calcola_profitto: restituisce la differenza tra il prezzo di vendita e il costo di produzione.
-            pass 
+    def calcola_profitto(self, quantita_da_vendere):
+        self.unita -= quantita_da_vendere
+        profitto = self.prezzo_vendita * quantita_da_vendere - self.costo_produzione * quantita_da_vendere
+        print(f"{quantita_da_vendere} unita di  {self.nome} vendute, Rimanenti: {self.unita} un\n")
+        print(f"profitto prodotto: {profitto}\n")
+        print(f"costo di produzione * unita {self.costo_produzione * quantita_da_vendere}")
+        return profitto 
         
 class Elettronica(Prodotto):
     def __init__(self, nome, costo_produzione, prezzo_vendita, unita, features: list, classe_energetica: str):
@@ -73,21 +77,18 @@ class Fabbrica:
             print("ERRORE")
             
     @log_func        
-    def vendi_prodotto(self, prodotto: Prodotto, quantita: int):
-        if  prodotto in self.inventario:
-            prodotto.unita -= quantita
-            profitto = prodotto.prezzo_vendita * quantita - prodotto.costo_produzione * quantita
-            print(f"{quantita} unita di  {prodotto.nome} vendute, Rimanenti: {prodotto.unita} un\n")
-            print(f"profitto prodotto: {profitto}\n")
-            print(f"costo di produzione * unita {prodotto.costo_produzione * quantita}")
-            return profitto
+    def vendi_prodotto(self, prodotto: Prodotto, quantita_da_vendere: int):
+        if  prodotto in self.inventario and quantita_da_vendere <= prodotto.unita:
+            #TODO: se quantità scende a 0 allora viene rimosso da magazzino
+            vendita = prodotto.calcola_profitto(quantita_da_vendere)
+            return vendita
         else:
             print("ERRORE: Prodotto non trovato o quantità non valida.")
             
     @log_func    
     def resi_prodotto(self, prodotto: Prodotto, unita: int=1):
         if  prodotto in self.storico_vendite:
-            
+            # TODO : logica: se il prodotto è in magazzino, allora +1 a prodotto.unità else lo ricrea e lo pusha in magazzino
             return
         else:
             print("ERRORE: Prodotto non trovato o quantità non valida.")
