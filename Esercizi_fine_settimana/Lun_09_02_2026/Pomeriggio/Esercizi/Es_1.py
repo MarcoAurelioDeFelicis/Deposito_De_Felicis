@@ -196,10 +196,11 @@ def play():
                     print("ERRORE: nome utente non valido, Riprova")
                     continue
                 
-        #Inizial di User sato
+        
         print(f"DEBUG: current user:{current_user}")
         # print("DEBUG: Inizial di User sato ") 
         
+        #Inizial di User sato
         state_admin = False 
         
         if current_user.isadmin == True:
@@ -214,8 +215,8 @@ def play():
             if state_admin:
                 scelte_disponibili.extend(["1", "2", "3", "4", "9"]) # Admin vede utenti e log
                 print("\nMENU ADMIN:")
-                print("1) Visualizza Utenti")
-                print("2) Crea Nuovo Utente")
+                print("1) Visualizza Utenti") #TODO : aggiungere funzione in user
+                print("2) Crea Nuovo Utente") #TODO : aggiungere funzione in user BUG: deve bloccare l'aggiunta di un utente gia inserito
                 print("3) Promuovi Utente")
                 print("4) Visualizza Inventario")
                 print("9) Visualizza Storico Ordini")
