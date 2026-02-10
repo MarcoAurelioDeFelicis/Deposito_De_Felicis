@@ -8,6 +8,47 @@ def log_func(funzione):
         return risultato
     return wrapper
 
+# __ CLASSE USR ---
+class User:
+    def __init__(self, nome: str, password):
+        self.nome = nome
+        self.password = password
+        self. magazzini_posseduti = []
+
+    def __str__(self):
+        return f"UTENTE: {self.nome}"
+    
+    @log_func
+    def crea_magazzino(self, nome_magazzino):
+        nuovo_id = len(self.magazzini_posseduti) + 1
+        magazzino_OBJ = Magazzino(nome_magazzino, id=nuovo_id)
+        self.magazzini_posseduti.append(magazzino_OBJ)
+        print(f"Magazzino {nome_magazzino} creato con successo.")
+        return magazzino_OBJ
+    
+    @log_func
+    def elimina_magazzino(self, nome_magazzino):
+        if nome_magazzino in self.magazzini_posseduti:
+            magazzino_da_eliminare = self.magazzini_posseduti[nome_magazzino]
+            while True:
+                conferma = input(f"vuoi davvero eliminare {nome_magazzino} ? (y/n)").lower().strip()
+                if conferma != "y":
+                    break
+                else: 
+                    if input(f"scrivi il nome del magazzino che vuoi eliminare: ") == magazzino_da_eliminare:
+                        self.magazzini_posseduti.pop(nome_magazzino)
+                        print(f"Magazzino {nome_magazzino} ELIMINATO con succsso!")
+                        break
+                
+    def stampa_magazzini_posseduti(self):
+        print(f"--- MAGAZZINI DI {self.nome.capitalize()} ---")
+        if not self.magazzini_posseduti:
+            print("Non hai ancora magazzini, Creane 1.")
+        else:
+            print(self.magazzini_posseduti)
+        print("----------------------------------")
+            
+
 # --- CLASSE PACCO  ---
 class Pacco:
     stati_possibili = {"in magazzino", "in consegna", "consegnato"}
@@ -20,6 +61,7 @@ class Pacco:
     def __str__(self):
         return f"PACCO: '{self.codice}' | Peso: {self.peso}kg | Stato: {self.stato}"
     
+    @log_func
     def cambia_stato(self, new_stato: str):
         if new_stato in self.stati_possibili:
             self.stato = new_stato
@@ -31,13 +73,12 @@ class Pacco:
 
 # --- CLASSE MAGAZZINO  ---
 class Magazzino:
-    def __init__(self, nome):
+    def __init__(self, nome, id):
         self.nome = nome
         self.inventario = {} # Dict: "codice" -> Oggetto Pacco
 
-    @log_func  
     def stampa_inventario(self):
-        print(f"--- INVENTARIO DI {self.nome.upper()} ---")
+        print(f"--- INVENTARIO DI {self.nome.lower()} ---")
         if not self.inventario:
             print("Il magazzino è vuoto.")
         else:
@@ -94,8 +135,9 @@ class Magazzino:
 # --- CLASSE GESTORE ---
 class GestorePacchi:
     
-    def __init__(self, magazzino_riferimento):
+    def __init__(self, magazzino_riferimento, utente):
         self.magazzino = magazzino_riferimento
+        self.utenti_registrati = [utente]
 
     @log_func
     def metti_in_consegna(self, codice_pacco):
@@ -136,10 +178,19 @@ def play():
     print("\n--- BENVENUTO NEL SISTEMA LOGISTICO ---")
     
     # Istanziamento classi
-    magazzini = [  ]
+    # utenti = [] #TODO: questo va nella classe Gestore perche voglio che Gestore Pacchi sia la classe che rappresenta l'hub app
+    # magazzini = [  ] #TODO: questo va nella classe User
+    
+    first_user_OBJ = User("marco","M13K")
     my_magazzino_OBJ = Magazzino("mio")
     my_gestore_OBJ = GestorePacchi(my_magazzino_OBJ)
-    magazzini.append(my_magazzino_OBJ.nome)
+    first_user_OBJ.append(my_magazzino_OBJ.nome)
+    
+    # --- LOGICA LOGIN --_
+    while True:
+        user_name = input("inserisci il tuo nome utente")
+        user_pass = input("inserisci la tua password")
+        break #TODO: da finire 
     
     while True:
         nome_hub = input("Inserisci il nome del Magazzino: ")
@@ -164,7 +215,7 @@ def play():
     # my_magazzino_OBJ.aggiungi_pacco("TEST-05", 1.5)
 
     while True:
-        print(f"\n--- MENU OPERATIVO: {my_magazzino_OBJ.nome.upper()} ---")
+        print(f"\n--- MENU OPERATIVO: {my_magazzino_OBJ.nome.lower()} ---")
         print("1)  [Magazzino] Aggiungi nuovo Pacco")
         print("2)  [Magazzino] Stampa Inventario")
         print("3)  [Magazzino] Cerca (Codice o Stato)")
