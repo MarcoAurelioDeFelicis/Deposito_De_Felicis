@@ -18,6 +18,7 @@
 # Decoratore
 
 import inspect
+import random
 from functools import wraps
 
 #Decoratore
@@ -48,7 +49,7 @@ class Prodotto:
 
 # --- CLASSE ELETTRONICA(Prodotto) ---
 class Elettronica(Prodotto):
-    def __init__(self, nome: str, costo_produzione: float, prezzo_vendita: float, unita:int, categoria: int, componenti: dict, classe_energetica: str):
+    def __init__(self, nome: str, costo_produzione: float, prezzo_vendita: float, unita:int, categoria: str, componenti: dict, classe_energetica: str):
         super().__init__(nome, costo_produzione, prezzo_vendita, unita, categoria)
         self.componenti = componenti
         self.classe_energetica = classe_energetica
@@ -61,7 +62,7 @@ class Abbigliamento(Prodotto):
     
     taglie_disponibili = ("XL","L","M","S","XS" )
     
-    def __init__(self, nome: str, costo_produzione: float, prezzo_vendita: float, unita: int, categoria: int, materiale: str, taglia:str):
+    def __init__(self, nome: str, costo_produzione: float, prezzo_vendita: float, unita: int, categoria: str, materiale: str, taglia:str):
         super().__init__(nome, costo_produzione, prezzo_vendita, unita, categoria)
         self.materiale = materiale
         self.taglia = taglia
@@ -75,9 +76,8 @@ class Fabbrica:
     TIPI_PROD = {"elettronica": Elettronica, "abbigliamento": Abbigliamento}
     
     def __init__(self, nome, inventario=None):
-        if inventario is None:
-            inventario = {}
-        self.storico_vendite = []
+        self.inventario = inventario if inventario is not None else {}
+        self.storico_vendite = {}
         self.nome = nome
         
 #-------------- METODI FABBRICA --------------------------------------------
@@ -86,11 +86,13 @@ class Fabbrica:
         print(f"--- INVENTARIO DI: {self.nome.lower()} ---")
         if not self.inventario:
             print("Il magazzino è vuoto.")
+            return None
         else:
             # Iteriamo sui valori (gli oggetti Pacco)
             for p in self.inventario.values():
                 print(p) #__str__ di Pacco
         print("----------------------------------")
+        return True
     
     @staticmethod   
     def zero_checker(func):
@@ -110,6 +112,8 @@ class Fabbrica:
             
     def asker(self, categoria: str):
         ''' Trova i parametri necessari e chiede l'input all'utente '''
+        if categoria.lower() == 'back':
+            return None
         
         classe_scelta = self.TIPI_PROD.get(categoria)
                 
@@ -118,7 +122,7 @@ class Fabbrica:
         
         args_da_passare = []
         
-        print(f"\n--- Configurazione {classe_scelta.__name__} ---")
+        print(f"\n--- Configurazione prodotto {classe_scelta.__name__} ---")
         for nome_param, param in parametri.items():
             # Skip 'self'
             if nome_param == 'self': continue
@@ -138,17 +142,17 @@ class Fabbrica:
         return args_da_passare
     
     @log_func
-    @zero_checker   
+    @zero_checker
     def crea_prodotto(self, classe_scelta, args_lista):
         ''' Spacchetta * gli argomenti e istanzia OBJ della classe '''
+        
         try:
             new_OBJ = classe_scelta(*args_lista)
-            
-            self.inventario[new_OBJ.nome] = new_OBJ
-            print(f"SUCCESSO! {new_OBJ.nome} creato e aggiunto!")
             return new_OBJ
+        
         except Exception as e:
             print(f"ERRORE: durante la creazione: {e}")
+            return None
 
 
     @log_func   
@@ -173,20 +177,130 @@ class Fabbrica:
     
         if prodotto_OBJ and quantita_da_vendere <= prodotto_OBJ.unita:
             prodotto_OBJ.unita -= quantita_da_vendere
-            print(f"{quantita_da_vendere} unita di {prodotto_OBJ.nome} vendute, Rimanenti: {prodotto_OBJ.unita} un\n")
+            cod_tracciamento = f"TRK-{random.randint(10000, 99999)}"
+            self.storico_vendite[cod_tracciamento] = prodotto_OBJ
+            print(f"{quantita_da_vendere} unità di {prodotto_OBJ.nome} vendute, Rimanenti: {prodotto_OBJ.unita}, Codice Tracking: {cod_tracciamento}\n")
             
             # self.zero_checker()
-            #TODO: se quantità scende a 0 allora viene rimosso da magazzino
             vendita = prodotto_OBJ.calcola_profitto(quantita_da_vendere)
             return vendita
         else:
             print("ERRORE: Prodotto non trovato o quantità non valida.")
             
-    @log_func    
-    def resi_prodotto(self, prodotto: Prodotto, unita: int=1):
-        if  prodotto in self.storico_vendite:
-            # TODO : logica: se il prodotto è in magazzino, allora +1 a prodotto.unità else lo ricrea e lo pusha in magazzino
-            return
-        else:
-            print("ERRORE: Prodotto non trovato o quantità non valida.")
+    def stampa_tracking_attivi(self):
+        ''' Visualizza tutti i codici tracking generati e non ancora resi '''
         
+        print(f"--- TRACKING ATTIVI ({self.nome}) ---")
+        if not self.storico_vendite:
+            print("Nessuna spedizione attiva.")
+            return None
+        else:
+            for trk, obj in self.storico_vendite.items():
+                print(f"Codice: {trk} | Prodotto: {obj.nome}")
+        print("--------------------------------------")
+        return True
+            
+    @log_func    
+    def resi_prodotto(self, cod_tracciamento: str, unita: int=1):
+        prodotto_storico = self.storico_vendite.get(cod_tracciamento)
+        
+        if prodotto_storico:
+    
+            if prodotto_storico.nome in self.inventario:
+                self.inventario[prodotto_storico.nome].unita += unita
+                print(f"Reso accettato: aggiunte {unita} unità a {prodotto_storico.nome}.")
+                
+            else:
+                prodotto_storico.unita = unita
+                self.inventario[prodotto_storico.nome] = prodotto_storico
+                
+            del self.storico_vendite[cod_tracciamento]
+            print(f"Reso completato per {prodotto_storico.nome} (ID: {cod_tracciamento})")
+            return True
+        
+        else:
+            print(f"ERRORE: Codice {cod_tracciamento} non trovato nello storico.")
+            return False
+
+def play():
+    mia_fabbrica = Fabbrica("MARCO FABBRICA")
+    
+    while True:
+        print(f"\n=== GESTIONALE {mia_fabbrica.nome.upper()} ===")
+        print("1) Aggiungi Prodotto")
+        print("2) Vendi Prodotto")
+        print("3) Gestisci Reso")
+        print("4) Visualizza Inventario")
+        print("5) Visualizza Tracking Attivi")
+        print("'back' per uscire.")
+        
+        scelta = input("\nSeleziona un'opzione: ").strip().lower()
+        
+        if scelta == 'back':
+            print("Chiusura gestionale...")
+            break
+
+        # --- AGGIUNGI PRODOTTO ---
+        if scelta == '1':
+            while True:
+                print(f"\nCategorie disponibili: {list(mia_fabbrica.TIPI_PROD.keys())}")
+                cat = input("Inserisci categoria (o 'back' per menu principale): ").strip().lower()
+                
+                if cat == 'back': break
+                
+                if cat in mia_fabbrica.TIPI_PROD:
+                    args = mia_fabbrica.asker(cat)
+                    if args:
+                        classe = mia_fabbrica.TIPI_PROD[cat]
+                        nuovo_p = mia_fabbrica.crea_prodotto(classe, args)
+                        mia_fabbrica.aggiungi_prodotto(nuovo_p)
+                        break
+                else:
+                    print("Categoria non valida.")
+
+        # --- VENDI PRODOTTO ---
+        elif scelta == '2':
+            while True:
+                mia_fabbrica.stampa_inventario()
+                
+                if not mia_fabbrica.stampa_inventario():
+                    break
+                
+                nome_p = input("Nome prodotto da vendere (o 'back'): ").strip()
+                if nome_p == 'back': continue
+                
+                try:
+                    qty = int(input("Quantità: "))
+                    mia_fabbrica.vendi_prodotto(nome_p, qty)
+                    break
+                except ValueError:
+                    print("Errore: Inserire un numero intero per la quantità.")
+                    continue
+
+        # --- GESTISCI RESO ---
+        elif scelta == '3':
+            while True:
+                mia_fabbrica.stampa_tracking_attivi()
+                if not mia_fabbrica.stampa_tracking_attivi():
+                    break
+                
+                trk = input("Inserisci codice tracking per reso (o 'back'): ").strip()
+                if trk == 'back': continue
+                
+                mia_fabbrica.resi_prodotto(trk)
+                break
+
+        # --- VISUALIZZA INVENTARIO ---
+        elif scelta == '4':
+            mia_fabbrica.stampa_inventario()
+            input("\nPremi invio per continuare...")
+
+        # --- VISUALIZZA TRACKING ---
+        elif scelta == '5':
+            mia_fabbrica.stampa_tracking_attivi()
+            input("\nPremi invio per continuare...")
+
+        else:
+            print("Opzione non valida, riprova.")
+
+play()
