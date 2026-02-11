@@ -16,6 +16,7 @@
 # vendi_prodotto: diminuisce la quantità di un prodotto in inventario e stampa il profitto realizzato dalla vendita.
 # resi_prodotto: aumenta la quantità di un prodotto restituito in inventario.
 # Decoratore
+
 import inspect
 from functools import wraps
 
@@ -47,7 +48,7 @@ class Prodotto:
 
 # --- CLASSE ELETTRONICA(Prodotto) ---
 class Elettronica(Prodotto):
-    def __init__(self, nome, costo_produzione, prezzo_vendita, unita, categoria, componenti: list, classe_energetica: str):
+    def __init__(self, nome: str, costo_produzione: float, prezzo_vendita: float, unita:int, categoria: int, componenti: dict, classe_energetica: str):
         super().__init__(nome, costo_produzione, prezzo_vendita, unita, categoria)
         self.componenti = componenti
         self.classe_energetica = classe_energetica
@@ -60,7 +61,7 @@ class Abbigliamento(Prodotto):
     
     taglie_disponibili = ("XL","L","M","S","XS" )
     
-    def __init__(self, nome, costo_produzione, prezzo_vendita, unita, categoria, materiale: str, taglia:str):
+    def __init__(self, nome: str, costo_produzione: float, prezzo_vendita: float, unita: int, categoria: int, materiale: str, taglia:str):
         super().__init__(nome, costo_produzione, prezzo_vendita, unita, categoria)
         self.materiale = materiale
         self.taglia = taglia
@@ -79,7 +80,7 @@ class Fabbrica:
         self.storico_vendite = []
         self.nome = nome
         
-#-------------- METODI --------------------------------------------
+#-------------- METODI FABBRICA --------------------------------------------
         
     def stampa_inventario(self):
         print(f"--- INVENTARIO DI: {self.nome.lower()} ---")
@@ -107,25 +108,33 @@ class Fabbrica:
             return result
         return wrapper
             
-    def asker(self, classe_scelta):
+    def asker(self, categoria: str):
         ''' Trova i parametri necessari e chiede l'input all'utente '''
+        
+        classe_scelta = self.TIPI_PROD.get(categoria)
+                
         #firma del metodo __init__
         parametri = inspect.signature(classe_scelta.__init__).parameters
         
         args_da_passare = []
         
-        print(f"\n--- Configurazione {classe_scelta.name} ---")
+        print(f"\n--- Configurazione {classe_scelta.__name__} ---")
         for nome_param, param in parametri.items():
             # Skip 'self'
-            if nome_param == 'self':
-                continue
+            if nome_param == 'self': continue
             
-            valore = input(f"Inserisci {nome_param}: ")
+            valore_input = input(f"Inserisci {nome_param}: ")
+            #default str perche input è gia str
+            tipo_atteso = param.annotation if param.annotation != inspect.Parameter.empty else str
             
-            # TODO : Qui potrei aggiungere una logica per convertire in int/float
-            # Per ora li lascio come stringhe o cast base
-            args_da_passare.append(valore)
-            
+            try:
+                valore_convertito = tipo_atteso(valore_input)
+                args_da_passare.append(valore_convertito)
+            except ValueError:
+                print(f"ERRORE: '{valore_input}' non è un valore valido per {tipo_atteso.__name__}.")
+                return None
+                # args_da_passare.append(valore_input) 
+                    
         return args_da_passare
     
     @log_func
@@ -133,10 +142,8 @@ class Fabbrica:
     def crea_prodotto(self, classe_scelta, args_lista):
         ''' Spacchetta * gli argomenti e istanzia OBJ della classe '''
         try:
-            # L'operatore * trasforma la lista [a, b, c] in (a, b, c) passati come argomenti
             new_OBJ = classe_scelta(*args_lista)
             
-            # Lo aggiungiamo all'inventario usando il nome come chiave
             self.inventario[new_OBJ.nome] = new_OBJ
             print(f"SUCCESSO! {new_OBJ.nome} creato e aggiunto!")
             return new_OBJ
