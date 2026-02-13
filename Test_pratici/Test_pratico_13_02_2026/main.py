@@ -2,7 +2,6 @@ from Dipendenti import *
 from Porta import *
 
 def input_validato(messaggio, tipo=str):
-    """Utility per gestire input con loop e possibilità di annullare"""
     while True:
         valore = input(f"{messaggio} (o '0' per annullare): ").strip()
         if valore == '0':
