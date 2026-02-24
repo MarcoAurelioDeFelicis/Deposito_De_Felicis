@@ -23,3 +23,6 @@ print("Indice del valore massimo:" , arr.argmax()) # Output: 4
 arr = np.array(10)
 print("crea una struttura simile a random", np.arange)
 print(arr)
+
+#reshape
+
