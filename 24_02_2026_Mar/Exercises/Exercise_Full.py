@@ -121,7 +121,6 @@ def play():
                 continue
             
         print("\n--- MENU MATRICE 2D ---")
-        print("1. Crea nuova Matrice")
         print("2. Estrai sottomatrice centrale")
         print("3. Trasponi Matrice")
         print("4. Somma totale")
@@ -132,17 +131,7 @@ def play():
         
         scelta = input("Seleziona un'opzione: ")
 
-        if scelta == '1':
-            r = int(input("Inserisci numero righe: "))
-            c = int(input("Inserisci numero colonne: "))
-            matrice = crea_matrice(r, c)
-            if matrice is not None:
-                print("Matrice Creata:\n", matrice)
-                salva_su_file(nome_file, "Creazione", matrice)
-            else:
-                print("ERRORE: matrice non creata!")
-
-        elif scelta == '2':
+        if scelta == '2':
             if matrice is not None:
                 centro = estrai_centro(matrice)
                 print("Centro:\n", centro)
