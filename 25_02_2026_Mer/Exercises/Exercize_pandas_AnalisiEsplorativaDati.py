@@ -46,6 +46,13 @@ df = df.dropna()
 df['Età'].fillna(df['Età'].mean(), inplace=True)
 print("Dataframe di Pulito", df)
 
+# Aggiungiamo una nuova colonna la persona maggiorenne
+df['Giovane'] = df['Età'] <= 18
+df['Adulto'] = df['Età'] in range(18, 55)
+df['Senior'] = df['Età'] >=56
+
+# 3. Visualizzazione per verifica
+print("DataFrame con Categoria Età:", df)
 
 # -- FAsE: Analisi -- 
 print("\n\n-- FAsE: Analisi -- ")
