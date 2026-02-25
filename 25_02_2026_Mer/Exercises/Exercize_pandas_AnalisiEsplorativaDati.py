@@ -44,15 +44,21 @@ df = df.dropna()
 
 # sostituiresistituizione dati mancanti con valore di default
 df['Età'].fillna(df['Età'].mean(), inplace=True)
-print("Dataframe di Pulito", df)
+print("Dataframe di Pulito\n", df)
 
 # Aggiungiamo una nuova colonna la persona maggiorenne
-df['Giovane'] = df['Età'] <= 18
-df['Adulto'] = df['Età'] in range(18, 55)
+df['Giovane'] = df['Età'].between(18, 25, inclusive='both')
+# df['Adulto'] = df['Età'] in range(18, 55)
+df['Adulto'] = df['Età'].between(26, 55, inclusive='both')
 df['Senior'] = df['Età'] >=56
+print("\nDataFrame con Categoria Età BOOL:\n", df)
 
-# 3. Visualizzazione per verifica
-print("DataFrame con Categoria Età:", df)
+#.loc per trovare righe che soddisfano una condizione e agire solo su una determinata colonna
+#df.loc[indice_riga, nome_colonna]
+df.loc[df['Età'].between(18, 25), 'Categoria_Età'] = 'Giovane'
+df.loc[df['Età'].between(26, 55), 'Categoria_Età'] = 'Adulto'
+df.loc[df['Età'] >= 56, 'Categoria_Età'] = 'Senior'
+print("\nDataFrame con Categoria Età .loc:\n", df)
 
 # -- FAsE: Analisi -- 
 print("\n\n-- FAsE: Analisi -- ")
