@@ -28,6 +28,7 @@
 # anni: Giovane, 19-65 anni: Adulto, oltre 65 anni: Senior).
 
 # Salvare il DataFrame pulito in un nuovo file CSV.
+
 import pandas as pd
 
 df_input = pd.read_csv('ZDeposito_csv_txt/dataset_nome_eta_citta_salario.csv')
@@ -91,3 +92,10 @@ print("\n")
 print(f"Media Età: {media_eta} anni")
 print(f"Mediana Età: {mediana_eta} anni")
 print(f"Deviazione Standard Età: {deviazione_eta} €")
+
+#-- SALVATAGGIO DF --
+# Di default, Pandas salva anche la colonna degli indici (0, 1, 2...). 
+# Se non metti False, ogni volta che riaprirai il file ti troverai una colonna "Unnamed: 0" in più, 
+# creando un pasticcio di duplicati.
+df.to_csv('ZDeposito_csv_txt/DsPulito_nome_eta_citta_salario.csv', index=False)
+print("dataset Pulito salvato")
