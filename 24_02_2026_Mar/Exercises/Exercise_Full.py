@@ -124,6 +124,7 @@ def play():
         print("2. Estrai sottomatrice centrale")
         print("3. Trasponi Matrice")
         print("4. Somma totale")
+        print("5. Somma Di elementi maggiori di 5")
         print("6. Moltiplicazione Element-wise con un'altra Matrice")
         print("7. Media Elementi Matrice")
         print("9. Torna al menu principale (Cambia Matrice)")
@@ -149,11 +150,21 @@ def play():
 
         elif scelta == '4':
             if matrice is not None:
-                somma = matrice.sum()
+                somma = operazioni_array("totalsum", matrice)
+                # somma = matrice.sum()
                 print("Somma totale:", somma)
                 salva_su_file(nome_file, "Somma Totale", somma)
             else:
                 print("Crea prima una matrice!")
+                
+        elif scelta == '5':
+            if matrice is not None:
+                somma5 = operazioni_array("sum5", matrice)
+                print("Somma totale di elementi > 5:", somma5)
+                salva_su_file(nome_file, "Somma totale di elementi > 5", somma5)
+            else:
+                print("Crea prima una matrice!")
+                
         
         elif scelta == '6':
             if matrice is not None:
