@@ -104,7 +104,7 @@ print(analisi_churn)
 
 # Calcolo correlazione (solo colonne numeriche)
 # conversione in int di chur per la vis. in cor()
-df['Churn_Numeric'] = df['Churn'].replace({'Sì': 1, 'No': 0})
+df['Churn_Numeric'] = df['Churn'].replace({'Sì': 1, 'No': 0}).astype(int)
 
 matrice_corr = df.select_dtypes(include=[np.number]).corr()
 print("\nMatrice di Correlazione:")
@@ -116,6 +116,34 @@ print(matrice_corr['Churn_Numeric'].sort_values(ascending=False))
 #    - Se il Costo_per_GB è molto più alto per chi fa Churn, 
 #        la strategia tariffaria potrebbe non essere competitiva per i "heavy users".
 
+
+# --- GENERAZIONE FEEDBACK REPORT ---
+print("="*40)
+print("     REPORT ANALISI CORRELAZIONE     ")
+print("="*40)
+
+# Prendiamo le correlazioni rispetto al Churn (escludendo il Churn stesso)
+report_data = matrice_corr['Churn_Numeric'].drop('Churn_Numeric').sort_values(ascending=False)
+
+for variabile, valore in report_data.items():
+    if valore > 0.3:
+        status = "🔴 FORTE RISCHIO: Se questa aumenta, il cliente tende ad andarsene."
+    elif valore < -0.3:
+        status = "🟢 FATTORE FEDELTÀ: Se questa aumenta, il cliente tende a restare."
+    else:
+        status = "🟡 NEUTRALE: Non sembra influenzare direttamente l'abbandono."
+    
+    print(f"- {variabile:25} | Corr: {valore:>6.2f} | {status}")
+
+print("="*40)
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(matrice_corr, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title("Mappa di Correlazione tra i Fattori Cliente")
+plt.show()
 
 print("--- DATAFARME IN OUTPUT:---")
 print(df)
