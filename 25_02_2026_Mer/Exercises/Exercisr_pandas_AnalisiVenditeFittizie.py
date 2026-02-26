@@ -16,6 +16,7 @@
 
 import pandas as pd
 import numpy as np
+# from datetime import date
 
 # config parametri
 n_righe = 100  
